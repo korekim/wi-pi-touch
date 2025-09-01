@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0d1117; /* Sleek black background */
+  --foreground: #c9d1d9; /* Soft white foreground */
+  --primary-blue: #1f6feb; /* Stylish blue for accents */
+  --success-green: #2ea043; /* Smooth green for success indicators */
+  --font-sans: 'Roboto', Arial, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-blue);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  background-color: var(--primary-blue);
+  color: var(--foreground);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--success-green);
+}
+
+input, textarea {
+  background-color: #161b22; /* Slightly lighter black */
+  color: var(--foreground);
+  border: 1px solid var(--primary-blue);
+  padding: 10px;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--success-green);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary-blue: #58a6ff;
+    --success-green: #3fb950;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
