@@ -49,7 +49,6 @@
       },
       "extraMetadata": {
         "main": "electron/main.js"
-      },
-      "publish": "never"
+      }
   }
 }

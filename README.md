@@ -8,8 +8,6 @@ To build:
 
 `cd frontend`
 
-`docker run --rm -ti \
-  -v "$PWD":/project \
-  -e CSC_IDENTITY_AUTO_DISCOVERY=false \
-  electronuserland/builder:latest \
-  /bin/bash -lc "cd /project && npm ci && npm run build && npm run export && npx electron-builder --linux AppImage --arm64 -p never"`
+`npm ci`
+`npm run build`
+`npx electron-builder --linux AppImage --arm64 -p never`
