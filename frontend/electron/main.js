@@ -1,5 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('use-gl', 'swiftshader');   // force software GL
 
 function createWindow() {
   const win = new BrowserWindow({
