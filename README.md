@@ -6,8 +6,9 @@ This is a wi-fi pentesting app made with [Next.js](https://nextjs.org) for the f
 
 To build:
 
-`cd frontend
-docker run --rm -ti \
+`cd frontend`
+
+`docker run --rm -ti \
   -v "$PWD":/project \
   -e CSC_IDENTITY_AUTO_DISCOVERY=false \
   electronuserland/builder:latest \
