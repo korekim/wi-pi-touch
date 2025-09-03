@@ -31,24 +31,25 @@
     "typescript": "^5",
     "wait-on": "^8.0.4"
   },
-    "build": {
+  "build": {
+    "directories": { "output": "dist" },
     "appId": "com.korekim.wi-pi-touch",
     "productName": "Wi-Pi Touch",
     "files": [
       "out/**/*",
       "electron/**/*",
-      "package.json"
-    ],
-    "asar": true,
-    "compression": "maximum",
-    "linux": {
-      "target": "AppImage",
-      "category": "Utility",
-      "artifactName": "wi-pi-touch-${version}-${arch}.AppImage"
-    },
-    "extraMetadata": {
-      "main": "electron/main.js"
-    },
-    "publish": "never"
+        "package.json"
+      ],
+      "asar": true,
+      "compression": "maximum",
+      "linux": {
+        "target": "AppImage",
+        "category": "Utility",
+        "artifactName": "wi-pi-touch-${version}-${arch}.AppImage"
+      },
+      "extraMetadata": {
+        "main": "electron/main.js"
+      },
+      "publish": "never"
   }
 }

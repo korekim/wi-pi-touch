@@ -12,4 +12,4 @@ To build:
   -v "$PWD":/project \
   -e CSC_IDENTITY_AUTO_DISCOVERY=false \
   electronuserland/builder:latest \
-  /bin/bash -lc "cd /project && npm ci && npm run dist:linux:arm64"`
+  /bin/bash -lc "cd /project && npm ci && npm run build && npm run export && npx electron-builder --linux AppImage --arm64 -p never"`
