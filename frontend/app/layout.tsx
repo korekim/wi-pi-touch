@@ -14,10 +14,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header>
-
-          <h1>Wi-Pi Touch</h1>
-        </header>
         {children}
         <footer>
           &copy; Jake Kim

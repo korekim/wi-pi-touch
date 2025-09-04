@@ -12,8 +12,8 @@ function createWindow() {
     }
   });
 
-  // Load Next.js dev server
-  win.loadURL('http://127.0.0.1:8000/ui');
+  // Load Next.js dev server (development)
+  win.loadURL('http://localhost:3000');
 
   // Optional: open DevTools automatically
   //win.webContents.openDevTools();
