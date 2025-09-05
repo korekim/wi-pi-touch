@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAdapterContext } from "./AdapterContext";
 import { useNetworkContext } from "./NetworkContext";
 
@@ -8,19 +8,54 @@ interface AdapterMenuProps {
     id: string;
 }
 
+interface WirelessInterface {
+    interface: string;
+    driver: string;
+    chipset: string;
+}
+
 export default function AdapterMenu({ id }: AdapterMenuProps) {
     const { selectedAdapters, selectAdapter } = useAdapterContext();
     const { scannedNetworks, adapterNetworks, setAdapterNetwork, syncNetworks, handleSyncToggle } = useNetworkContext();
     const [selected, setSelected] = useState("");
+    const [interfaces, setInterfaces] = useState<WirelessInterface[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     
     const currentAdapter = adapterNetworks[id];
     const selectedNetwork = currentAdapter?.selectedNetwork;
     
-    const adapters = [
-        { value: "wlan0", label: "WiFi Adapter 1 (wlan0)" },
-        { value: "wlan1", label: "WiFi Adapter 2 (wlan1)" },
-        { value: "wlan2", label: "WiFi Adapter 3 (wlan2)" },
-    ];
+    // Fetch wireless interfaces on component mount
+    useEffect(() => {
+        fetchInterfaces();
+    }, []);
+    
+    const fetchInterfaces = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const response = await fetch("http://localhost:8000/api/interfaces");
+            const data = await response.json();
+            
+            if (data.status === "success") {
+                setInterfaces(data.interfaces);
+            } else {
+                setError(data.message || "Failed to fetch interfaces");
+            }
+        } catch (err) {
+            console.error("Error fetching interfaces:", err);
+            setError("Failed to connect to backend");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // Convert interfaces to adapter options
+    const adapters = interfaces.map(iface => ({
+        value: iface.interface,
+        label: `${iface.interface} (${iface.driver} - ${iface.chipset})`
+    }));
 
     // Get all selected adapters except for this instance
     const takenAdapters = Object.entries(selectedAdapters)
@@ -70,19 +105,22 @@ export default function AdapterMenu({ id }: AdapterMenuProps) {
     };
 
     return (
-        <div id={id} className="flex flex-col space-y-2">
-            <div className="flex flex-row items-center space-x-3">
-            <label htmlFor={`adapter-select-${id}`} className="text-gray-700 text-sm whitespace-nowrap">
-                Select Adapter:
+        <div id={id} className="flex flex-col space-y-2 w-full max-w-md mx-auto">
+            <div className="flex flex-row items-center space-x-2">
+            <label htmlFor={`adapter-select-${id}`} className="text-gray-700 text-xs whitespace-nowrap flex-shrink-0">
+                Adapter:
             </label>
             <select
                 id={`adapter-select-${id}`}
-                className="px-3 py-2 border rounded bg-white text-gray-800 text-sm"
+                className="px-2 py-1 border rounded bg-white text-gray-800 text-xs flex-1 min-w-0"
                 value={selected}
                 onChange={handleChange}
+                disabled={loading}
             >
-                <option value="" disabled>Unselected</option>
-                {adapters.map((adapter) => (
+                <option value="" disabled>
+                    {loading ? "Loading..." : error ? "Error" : "Select"}
+                </option>
+                {!loading && !error && adapters.map((adapter) => (
                     <option
                         key={adapter.value}
                         value={adapter.value}
@@ -91,35 +129,49 @@ export default function AdapterMenu({ id }: AdapterMenuProps) {
                         {adapter.label}
                     </option>
                 ))}
+                {error && (
+                    <option value="" disabled style={{ color: 'red' }}>
+                        {error}
+                    </option>
+                )}
             </select>
             <button 
-                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm whitespace-nowrap"
+                className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs whitespace-nowrap flex-shrink-0"
+                onClick={fetchInterfaces}
+                disabled={loading}
+            >
+                {loading ? "..." : "🔄"}
+            </button>
+            <div className="flex space-x-1">
+            <button 
+                className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs whitespace-nowrap flex-shrink-0"
                 onClick={() => handleModeChange("monitor")}
             >
-                Monitor Mode
+                Monitor
             </button>
             <button 
-                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm whitespace-nowrap"
+                className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs whitespace-nowrap flex-shrink-0"
                 onClick={() => handleModeChange("managed")}
             >
-                Managed Mode
+                Managed
             </button>
             </div>
+            </div>
             
-            <div className="flex flex-row items-center space-x-3">
-                <label htmlFor={`network-select-${id}`} className="text-gray-700 text-sm whitespace-nowrap">
-                    Selected Network:
+            <div className="flex flex-row items-center space-x-2">
+                <label htmlFor={`network-select-${id}`} className="text-gray-700 text-xs whitespace-nowrap flex-shrink-0">
+                    Network:
                 </label>
                 <select
                     id={`network-select-${id}`}
-                    className="px-3 py-2 border rounded bg-white text-gray-800 text-sm flex-1"
+                    className="px-2 py-1 border rounded bg-white text-gray-800 text-xs flex-1 min-w-0"
                     value={selectedNetwork ? `${selectedNetwork.bssid}|${selectedNetwork.ssid}` : ""}
                     onChange={handleNetworkChange}
                 >
-                    <option value="">-- No network selected --</option>
+                    <option value="">-- None --</option>
                     {scannedNetworks.map((network, index) => (
                         <option key={index} value={`${network.bssid}|${network.ssid}`}>
-                            {network.ssid} ({network.bssid}) - {network.signal}dBm
+                            {network.ssid} ({network.signal}dBm)
                         </option>
                     ))}
                 </select>
@@ -127,15 +179,15 @@ export default function AdapterMenu({ id }: AdapterMenuProps) {
             
             {/* Sync button only on adapter1 */}
             {id === "adapter1" && (
-                <div className="flex flex-row items-center space-x-3">
-                    <label className="flex items-center space-x-2 text-sm">
+                <div className="flex flex-row items-center justify-center">
+                    <label className="flex items-center space-x-1 text-xs">
                         <input
                             type="checkbox"
                             checked={syncNetworks}
                             onChange={(e) => handleSyncToggle(e.target.checked)}
                             className="rounded"
                         />
-                        <span className="text-gray-700">Sync network selection between adapters</span>
+                        <span className="text-gray-700">Sync adapters</span>
                     </label>
                 </div>
             )}
