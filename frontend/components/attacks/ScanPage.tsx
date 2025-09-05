@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useNetworkContext } from "@/components/NetworkContext";
+import { useAdapterContext } from "@/components/AdapterContext";
 
 export default function ScanPage() {
   const [duration, setDuration] = useState(30);
@@ -9,10 +10,22 @@ export default function ScanPage() {
   const [isScanning, setIsScanning] = useState(false);
   
   const { scannedNetworks, setScannedNetworks } = useNetworkContext();
+  const { selectedAdapters } = useAdapterContext();
 
-  // For scan page, we'll just track scan results without selection
+  // Get the first available adapter for scanning
+  const getSelectedAdapter = () => {
+    const adapters = Object.values(selectedAdapters);
+    return adapters.length > 0 ? adapters[0] : null;
+  };
 
   const handleScan = async () => {
+    const selectedAdapter = getSelectedAdapter();
+    
+    if (!selectedAdapter) {
+      alert("Please select an adapter first in the adapter menu above.");
+      return;
+    }
+
     setIsScanning(true);
     setScannedNetworks([]);
 
@@ -23,17 +36,22 @@ export default function ScanPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          adapter: "wlan0", // You might want to get this from context
+          adapter: selectedAdapter,
           duration: duration
         }),
       });
 
       const data = await response.json();
       console.log("Scan result:", data);
-      setScannedNetworks(data.networks || []);
+      
+      if (data.status === "success") {
+        setScannedNetworks(data.networks || []);
+      } else {
+        alert(`Scan failed: ${data.message || "Unknown error"}`);
+      }
     } catch (error) {
       console.error("Error scanning networks:", error);
-      alert("Failed to scan networks");
+      alert("Failed to scan networks - check if backend is running");
     } finally {
       setIsScanning(false);
     }
@@ -46,6 +64,19 @@ export default function ScanPage() {
         <p className="text-muted-foreground mb-4">
           Scan for nearby WiFi networks and gather information about access points.
         </p>
+        
+        {/* Adapter Status */}
+        <div className="mb-4 p-3 bg-muted border border-border rounded">
+          <h4 className="text-sm font-medium text-foreground mb-1">Selected Adapter:</h4>
+          <div className="text-sm">
+            {getSelectedAdapter() ? (
+              <span className="text-primary font-mono">{getSelectedAdapter()}</span>
+            ) : (
+              <span className="text-destructive">No adapter selected - please select one in the adapter menu above</span>
+            )}
+          </div>
+        </div>
+        
         <div className="space-y-2">
           <div>
             <label className="block text-sm font-medium text-foreground">Scan Duration (seconds):</label>
@@ -70,7 +101,7 @@ export default function ScanPage() {
           <button 
             className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-secondary disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
             onClick={handleScan}
-            disabled={isScanning}
+            disabled={isScanning || !getSelectedAdapter()}
           >
             {isScanning ? "Scanning..." : "Start Scan"}
           </button>

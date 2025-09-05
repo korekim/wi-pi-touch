@@ -272,8 +272,3 @@ UI_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend
 # Comment out for now to avoid missing directory errors in development
 # app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
 
-if __name__ == "__main__":
-    import uvicorn
-    # Bind to 0.0.0.0 so it's accessible from host machine when running in VM
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
