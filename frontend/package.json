@@ -1,7 +1,7 @@
 {
   "name": "wi-pi-touch",
   "version": "0.1.0",
-  "main": "electron/main.cjs",
+  "main": "electron/main-dev.cjs",
   "scripts": {
     "dev": "next dev -p 3000",
     "dev:electron": "concurrently \"npm:dev\" \"wait-on http://localhost:3000 && electron ./electron/main-dev.cjs\"",

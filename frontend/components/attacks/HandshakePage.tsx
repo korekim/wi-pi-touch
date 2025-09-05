@@ -77,18 +77,18 @@ export default function HandshakePage() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Handshake Capture</h2>
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-gray-700 mb-4">
+    <div className="p-6 bg-background">
+      <h2 className="text-2xl font-bold mb-4 text-foreground">Handshake Capture</h2>
+      <div className="bg-card p-4 rounded-lg border border-border shadow-custom">
+        <p className="text-muted-foreground mb-4">
           Capture WPA/WPA2 handshakes for offline password cracking.
         </p>
         <div className="space-y-2">
           {/* Adapter Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Select Adapter:</label>
+            <label className="block text-sm font-medium text-foreground">Select Adapter:</label>
             <select 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={selectedAdapter}
               onChange={(e) => setSelectedAdapter(e.target.value)}
             >
@@ -106,33 +106,33 @@ export default function HandshakePage() {
 
           {/* Network Status Display */}
           {selectedAdapter && adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork && (
-            <div className="p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-              <strong>Using network from {selectedAdapter}:</strong> {adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid} ({adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.bssid})
+            <div className="p-2 bg-accent/20 border border-accent rounded text-sm">
+              <strong className="text-foreground">Using network from {selectedAdapter}:</strong> <span className="text-accent">{adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid} ({adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.bssid})</span>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Target Network BSSID:</label>
+            <label className="block text-sm font-medium text-foreground">Target Network BSSID:</label>
             <input 
               type="text" 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" 
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary" 
               placeholder="Enter BSSID (auto-filled from scan selection)"
               value={targetNetwork}
               onChange={(e) => setTargetNetwork(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Capture Duration (seconds):</label>
+            <label className="block text-sm font-medium text-foreground">Capture Duration (seconds):</label>
             <input 
               type="number" 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" 
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary" 
               placeholder="60"
               value={duration}
               onChange={(e) => setDuration(parseInt(e.target.value))}
             />
           </div>
           <button 
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+            className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/80 disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
             onClick={handleHandshakeCapture}
             disabled={isCapturing}
           >

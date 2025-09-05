@@ -78,18 +78,18 @@ export default function EvilTwinPage() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Evil Twin Attack</h2>
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <p className="text-gray-700 mb-4">
+    <div className="p-6 bg-background">
+      <h2 className="text-2xl font-bold mb-4 text-foreground">Evil Twin Attack</h2>
+      <div className="bg-card p-4 rounded-lg border border-border shadow-custom">
+        <p className="text-muted-foreground mb-4">
           Create a rogue access point to intercept network traffic and credentials.
         </p>
         <div className="space-y-2">
           {/* Adapter Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Select Adapter:</label>
+            <label className="block text-sm font-medium text-foreground">Select Adapter:</label>
             <select 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={selectedAdapter}
               onChange={(e) => setSelectedAdapter(e.target.value)}
             >
@@ -107,25 +107,25 @@ export default function EvilTwinPage() {
 
           {/* Network Status Display */}
           {selectedAdapter && adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork && (
-            <div className="p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-              <strong>Using network from {selectedAdapter}:</strong> {adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid} (Channel {adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.channel})
+            <div className="p-2 bg-secondary/20 border border-secondary rounded text-sm">
+              <strong className="text-foreground">Using network from {selectedAdapter}:</strong> <span className="text-secondary">{adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid} (Channel {adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.channel})</span>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Target SSID:</label>
+            <label className="block text-sm font-medium text-foreground">Target SSID:</label>
             <input 
               type="text" 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" 
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary" 
               placeholder="Enter SSID to clone (auto-filled from scan selection)"
               value={targetSsid}
               onChange={(e) => setTargetSsid(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Channel:</label>
+            <label className="block text-sm font-medium text-foreground">Channel:</label>
             <select 
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={channel}
               onChange={(e) => setChannel(e.target.value)}
             >
@@ -136,7 +136,7 @@ export default function EvilTwinPage() {
             </select>
           </div>
           <button 
-            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-400"
+            className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
             onClick={handleEvilTwin}
             disabled={isRunning}
           >

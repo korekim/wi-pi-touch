@@ -217,17 +217,15 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
 
       {/* Gmail Content */}
       <div className="h-full bg-[#f6f8fc] flex">
-        {!selectedEmail ? (
-          <>
-            {/* Gmail Sidebar */}
-            <div className="w-64 bg-white border-r border-[#dadce0] flex-shrink-0 overflow-y-auto shadow-sm">
-              {/* Compose Button */}
-              <div className="p-4">
-                <button className="w-full bg-[#c2e7ff] hover:bg-[#a8dadc] hover:shadow-md text-[#001d35] px-6 py-3 rounded-full text-sm font-medium transition-all flex items-center space-x-3 shadow-sm border border-[#a8dadc]" style={{
-                  ...buttonResetStyles,
-                  width: '100%',
-                  backgroundColor: '#c2e7ff',
-                  color: '#001d35',
+        {/* Gmail Sidebar - Always visible */}
+        <div className="w-64 bg-white border-r border-[#dadce0] flex-shrink-0 overflow-y-auto shadow-sm">
+          {/* Compose Button */}
+          <div className="p-4">
+            <button className="w-full bg-[#c2e7ff] hover:bg-[#a8dadc] hover:shadow-md text-[#001d35] px-6 py-3 rounded-full text-sm font-medium transition-all flex items-center space-x-3 shadow-sm border border-[#a8dadc]" style={{
+              ...buttonResetStyles,
+              width: '100%',
+              backgroundColor: '#c2e7ff',
+              color: '#001d35',
                   padding: '12px 24px',
                   borderRadius: '50px',
                   fontSize: '14px',
@@ -546,12 +544,24 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
               </div>
             </div>
 
-            {/* Gmail Email List */}
-            <div className="flex-1 bg-white">{/* previous content */}
-              {/* Gmail Toolbar */}
-              <div className="border-b border-[#dadce0] px-4 py-3 bg-white shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+            {/* Main Content Area */}
+            <div className="flex-1 bg-white">
+              {!selectedEmail ? (
+                <>
+                  {/* Gmail Toolbar */}
+                  <div className="border-b border-[#dadce0] px-4 py-3 bg-white shadow-sm">
+                    <div className="flex items-center justify-between" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexDirection: 'row'
+                    }}>
+                      <div className="flex items-center space-x-4" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        flexDirection: 'row'
+                      }}>
                     <input type="checkbox" className="rounded border-[#dadce0] text-[#1a73e8] focus:ring-[#1a73e8]" style={{
                       ...inputResetStyles,
                       borderRadius: '3px',
@@ -601,10 +611,22 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z"/>
                       </svg>
                     </button>
-                  </div>
-                  <div className="flex items-center space-x-4 text-[#5f6368] text-sm">
-                    <span className="font-medium">{filteredEmails.length > 0 ? `1-${filteredEmails.length}` : '0'} of {filteredEmails.length}</span>
-                    <div className="flex items-center space-x-1">
+                      </div>
+                      <div className="flex items-center space-x-4 text-[#5f6368] text-sm" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        flexDirection: 'row',
+                        fontSize: '14px',
+                        color: '#5f6368'
+                      }}>
+                        <span className="font-medium">{filteredEmails.length > 0 ? `1-${filteredEmails.length}` : '0'} of {filteredEmails.length}</span>
+                        <div className="flex items-center space-x-1" style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          flexDirection: 'row'
+                        }}>
                       <button className="p-1 hover:bg-[#f8f9fa] rounded transition-colors text-[#5f6368] hover:text-[#1a73e8]" style={{
                         ...buttonResetStyles,
                         padding: '4px',
@@ -640,7 +662,12 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
 
               {/* Gmail Category Tabs */}
               <div className="border-b border-[#dadce0] bg-white">
-                <div className="flex items-center w-full">
+                <div className="flex items-center w-full" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  flexDirection: 'row'
+                }}>
                   <button 
                     onClick={() => setActiveCategory('primary')}
                     className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -798,7 +825,7 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                       !email.isRead ? 'bg-white' : 'bg-white'
                     }`}
                   >
-                    <div className="px-4 py-1">
+                    <div className="px-4 py-3">
                       <div className="flex items-center space-x-2">
                         {/* Checkbox */}
                         <input 
@@ -901,17 +928,49 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                   </div>
                 ))}
               </div>
-            </div>
-          </>
-        ) : (
-          // Gmail Email Detail View
-          <div className="flex-1 bg-[#f6f8fc] overflow-y-auto">
-            <div className="max-w-4xl mx-auto p-6">
-              {/* Email Header */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#dadce0] mb-6">
-                <div className="border-b border-[#dadce0] p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <h1 className="text-2xl font-normal text-[#202124] flex-1 pr-4">
+              </>
+              ) : (
+                // Gmail Email Detail View
+                <div className="h-full overflow-y-auto p-6">
+                  {/* Email Header */}
+                  <div className="bg-white rounded-lg shadow-sm border border-[#dadce0] mb-6" style={{
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 1px 3px 0 rgba(60,64,67,.3)',
+                border: '1px solid #dadce0',
+                marginBottom: '24px',
+                all: 'unset',
+                display: 'block',
+                boxSizing: 'border-box'
+              }}>
+                <div className="border-b border-[#dadce0] p-6" style={{
+                  borderBottom: '1px solid #dadce0',
+                  padding: '24px',
+                  all: 'unset',
+                  display: 'block',
+                  boxSizing: 'border-box'
+                }}>
+                  <div className="flex items-start justify-between mb-4" style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    marginBottom: '16px',
+                    all: 'unset',
+                    boxSizing: 'border-box'
+                  }}>
+                    <h1 className="text-2xl font-normal text-[#202124] flex-1 pr-4" style={{
+                      fontSize: '24px',
+                      fontWeight: 'normal',
+                      color: '#202124',
+                      flex: '1',
+                      paddingRight: '16px',
+                      fontFamily: "'Google Sans', 'Roboto', sans-serif",
+                      lineHeight: '1.4',
+                      margin: '0',
+                      all: 'unset',
+                      display: 'block',
+                      boxSizing: 'border-box'
+                    }}>
                       {selectedEmail.subject}
                     </h1>
                     <div className="flex items-center space-x-2">
@@ -1021,14 +1080,37 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                 </div>
 
                 {/* Email Content */}
-                <div className="p-6">
-                  <div className="whitespace-pre-line text-[#202124] leading-relaxed text-sm font-normal">
+                <div className="p-6" style={{
+                  padding: '24px',
+                  all: 'unset',
+                  display: 'block',
+                  boxSizing: 'border-box'
+                }}>
+                  <div className="whitespace-pre-line text-[#202124] leading-relaxed text-sm font-normal" style={{
+                    whiteSpace: 'pre-line',
+                    color: '#202124',
+                    lineHeight: '1.6',
+                    fontSize: '14px',
+                    fontWeight: 'normal',
+                    fontFamily: "'Google Sans', 'Roboto', sans-serif",
+                    all: 'unset',
+                    display: 'block',
+                    boxSizing: 'border-box'
+                  }}>
                     {selectedEmail.content}
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center space-x-4 p-6 pt-4 border-t border-[#dadce0]">
+                <div className="flex items-center space-x-4 p-6 pt-4 border-t border-[#dadce0]" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  padding: '16px 24px 24px',
+                  borderTop: '1px solid #dadce0',
+                  all: 'unset',
+                  boxSizing: 'border-box'
+                }}>
                   <button className="bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-md text-white px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -1044,9 +1126,9 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+                )}
+            </div>
+        </div>
       </div>
     </div>
   );

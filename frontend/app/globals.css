@@ -1,70 +1,189 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f5f5; /* Neutral light gray background */
-  --foreground: #333333; /* Dark gray for text */
-  --primary-accent: #888888; /* Subtle gray for accents */
-  --success-accent: #555555; /* Slightly darker gray for success indicators */
-  --font-sans: 'Roboto', Arial, sans-serif;
-  --font-mono: 'Courier New', Courier, monospace;
+  --background: #0a0e1a; /* Deep dark blue-black */
+  --foreground: #b3f5ff; /* More cyan light blue-white for text */
+  --card-background: #1a1f2e; /* Slightly lighter dark blue */
+  --border-color: #2a3441; /* Medium blue-gray for borders */
+  --primary-accent: #4fc3f7; /* Bright light blue */
+  --secondary-accent: #29b6f6; /* Medium light blue */
+  --success-accent: #4dd0e1; /* Cyan accent */
+  --danger-accent: #f06292; /* Soft pink for warnings/errors */
+  --muted-text: #81a9b3; /* Muted blue-gray text */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --shadow-color: rgba(79, 195, 247, 0.1);
+  --glow-color: rgba(79, 195, 247, 0.2);
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, var(--background) 0%, #0d1421 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-weight: 600;
 }
 
 a {
   color: var(--primary-accent);
   text-decoration: none;
+  transition: color 0.3s ease;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--secondary-accent);
+  text-shadow: 0 0 8px var(--glow-color);
 }
 
 button {
-  background-color: var(--primary-accent);
-  color: var(--foreground);
+  background: linear-gradient(135deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
+  color: var(--background);
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 24px;
+  border-radius: 8px;
   font-family: var(--font-sans);
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 button:hover {
-  background-color: var(--success-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--glow-color);
+  filter: brightness(1.1);
 }
 
-input, textarea {
-  background-color: #e0e0e0; /* Slightly darker gray */
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  background: var(--border-color);
+  color: var(--muted-text);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+input, textarea, select {
+  background-color: var(--card-background);
   color: var(--foreground);
-  border: 1px solid var(--primary-accent);
-  padding: 10px;
-  border-radius: 5px;
+  border: 2px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: 8px;
   font-family: var(--font-sans);
+  transition: all 0.3s ease;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: var(--success-accent);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px var(--shadow-color);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1a1a1a; /* Dark gray background */
-    --foreground: #e0e0e0; /* Light gray for text */
-    --primary-accent: #555555; /* Subtle dark gray for accents */
-    --success-accent: #777777; /* Slightly lighter gray for success indicators */
-  }
+/* Card styling for components */
+.card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--primary-accent);
+  box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+/* Navigation styling */
+nav {
+  background: rgba(26, 31, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-accent);
+}
+
+/* Code blocks */
+code {
+  background: var(--card-background);
+  color: var(--primary-accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+pre {
+  background: var(--card-background);
+  color: var(--foreground);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+}
+
+/* Selection styling */
+::selection {
+  background: var(--primary-accent);
+  color: var(--background);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--primary-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Status indicators */
+.status-success {
+  color: var(--success-accent);
+}
+
+.status-error {
+  color: var(--danger-accent);
+}
+
+.status-warning {
+  color: #ffa726;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(26, 31, 46, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(79, 195, 247, 0.1);
 }

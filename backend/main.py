@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from typing import Optional
 import os, subprocess
 
 app = FastAPI()
@@ -27,7 +28,7 @@ class NetworkScanRequest(BaseModel):
 class DeauthRequest(BaseModel):
     adapter: str
     target_bssid: str
-    target_mac: str = None
+    target_mac: Optional[str] = None
 
 class HandshakeRequest(BaseModel):
     adapter: str

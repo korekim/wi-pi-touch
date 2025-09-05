@@ -34,68 +34,68 @@ export default function Home() {
   return (
     <AdapterProvider>
       <NetworkProvider>
-        <div className="min-h-screen bg-white text-gray-800">
+        <div className="min-h-screen bg-background text-foreground">
           {/* Main Header */}
-          <div className="text-center py-6 bg-white border-b border-gray-200 relative">
-            <h1 className="text-4xl font-bold text-gray-900">Wi-Pi Touch</h1>
+          <div className="text-center py-6 bg-card border-b border-border relative">
+            <h1 className="text-4xl font-bold text-foreground">Wi-Pi Touch</h1>
             {/* Decoy Button */}
             <button 
               onClick={() => setShowDecoyEmail(true)}
-              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-secondary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-custom"
             >
-              📧 Email
+              Mail
             </button>
           </div>
           
           {/* Adapter Menu Header */}
-          <div className="flex flex-row items-center justify-between p-4 bg-gray-100 border-b border-gray-300">
+          <div className="flex flex-row items-center justify-between p-4 bg-muted border-b border-border">
             <div className="flex justify-center flex-1">
               <AdapterMenu id="adapter1" />
             </div>
-            <div className="w-px h-8 bg-gray-400"></div>
+            <div className="w-px h-8 bg-border"></div>
             <div className="flex justify-center flex-1">
               <AdapterMenu id="adapter2" />
             </div>
           </div>
 
           {/* Attack Navigation Header */}
-          <div className="flex flex-row items-center justify-center p-3 bg-gray-200 border-b border-gray-300">
+          <div className="flex flex-row items-center justify-center p-3 bg-card border-b border-border">
             <button
               onClick={() => setActiveAttack('scan')}
-              className={`flex-1 px-4 py-2 rounded-l text-sm font-medium ${
+              className={`flex-1 px-4 py-2 rounded-l text-sm font-medium transition-all ${
                 activeAttack === 'scan' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-primary text-primary-foreground shadow-glow' 
+                  : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               Network Scan
             </button>
             <button
               onClick={() => setActiveAttack('deauth')}
-              className={`flex-1 px-4 py-2 text-sm font-medium ${
+              className={`flex-1 px-4 py-2 text-sm font-medium transition-all ${
                 activeAttack === 'deauth' 
-                  ? 'bg-red-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-destructive text-destructive-foreground shadow-glow' 
+                  : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               Deauth Attack
             </button>
             <button
               onClick={() => setActiveAttack('handshake')}
-              className={`flex-1 px-4 py-2 text-sm font-medium ${
+              className={`flex-1 px-4 py-2 text-sm font-medium transition-all ${
                 activeAttack === 'handshake' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-accent text-accent-foreground shadow-glow' 
+                  : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               Handshake Capture
             </button>
             <button
               onClick={() => setActiveAttack('eviltwin')}
-              className={`flex-1 px-4 py-2 rounded-r text-sm font-medium ${
+              className={`flex-1 px-4 py-2 rounded-r text-sm font-medium transition-all ${
                 activeAttack === 'eviltwin' 
-                  ? 'bg-purple-600 text-white' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-secondary text-secondary-foreground shadow-glow' 
+                  : 'bg-card text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               Evil Twin

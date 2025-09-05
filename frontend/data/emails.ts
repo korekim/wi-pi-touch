@@ -983,6 +983,1045 @@ Stack Overflow Team`
 Join the conversation: https://discord.gg/webdev-community
 
 WebDev Community Server`
+  },
+
+  // ========== MORE PRIMARY EMAILS ==========
+  {
+    id: 25,
+    sender: "ceo@techcorp.com",
+    subject: "Company All-Hands Meeting - Friday 3PM (Required)",
+    preview: "Important company updates including Q4 strategy and team changes...",
+    time: "30 minutes ago",
+    isRead: false,
+    category: 'primary',
+    content: `Team,
+
+You are required to attend our company all-hands meeting this Friday at 3:00 PM in the main auditorium.
+
+Agenda:
+• Q4 Strategic Initiatives
+• Organizational Changes
+• New Product Launch Timeline
+• 2026 Roadmap Preview
+• Q&A Session
+
+This meeting is mandatory for all employees. Remote team members, please join via Teams.
+
+Best regards,
+Michael Chen
+Chief Executive Officer`
+  },
+  {
+    id: 26,
+    sender: "accounting@techcorp.com",
+    subject: "Expense Report Submission Due - September 8th",
+    preview: "Please submit all August expense reports by Monday deadline...",
+    time: "1 hour ago",
+    isRead: true,
+    category: 'primary',
+    content: `Dear Team,
+
+Reminder: All August expense reports must be submitted by Monday, September 8th at 5:00 PM.
+
+Required Documentation:
+• Original receipts (digital copies accepted)
+• Business justification for each expense
+• Manager approval signature
+• Project/department code assignment
+
+Late submissions will be processed in the next pay cycle.
+
+For questions, contact: accounting@techcorp.com
+
+Finance Department`
+  },
+  {
+    id: 27,
+    sender: "legal@techcorp.com",
+    subject: "Updated Employee Handbook - Review Required",
+    preview: "Important policy changes regarding remote work and data security...",
+    time: "2 hours ago",
+    isRead: false,
+    category: 'primary',
+    content: `Dear Employees,
+
+The updated Employee Handbook (v2025.3) is now available for review.
+
+Key Changes:
+• Remote Work Policy Updates
+• Data Security Requirements
+• Social Media Guidelines
+• Harassment Prevention Procedures
+• Emergency Contact Protocols
+
+Please review within 10 business days and acknowledge receipt via the HR portal.
+
+Questions? Contact legal@techcorp.com
+
+Legal Department`
+  },
+  {
+    id: 28,
+    sender: "facilities@techcorp.com",
+    subject: "Office Elevator Maintenance - Use Stairs Today",
+    preview: "Elevator B will be out of service for emergency repairs...",
+    time: "3 hours ago",
+    isRead: true,
+    category: 'primary',
+    content: `Building Notice
+
+Elevator B is out of service today due to emergency repairs.
+
+Alternative Access:
+• Use Elevator A (may have longer wait times)
+• Stairwell access available
+• Loading dock elevator for deliveries
+
+Expected repair completion: End of business today.
+
+Facilities Management`
+  },
+  {
+    id: 29,
+    sender: "dr.smith@healthclinic.com",
+    subject: "Annual Physical Exam Reminder - Schedule Required",
+    preview: "Your annual physical exam is due this month...",
+    time: "Yesterday",
+    isRead: false,
+    category: 'primary',
+    content: `Dear Patient,
+
+Your annual physical examination is due this month as part of your preventive care plan.
+
+Recommended Tests:
+• Complete Blood Panel
+• Blood Pressure & Heart Rate
+• Vision and Hearing Check
+• Cancer Screenings (age appropriate)
+• Vaccination Updates
+
+Please call to schedule: (555) 123-4567
+
+Dr. Sarah Smith
+Family Medicine`
+  },
+  {
+    id: 30,
+    sender: "bank@firstnational.com",
+    subject: "Statement Ready - Checking Account 4567",
+    preview: "Your September 2025 statement is now available online...",
+    time: "Yesterday",
+    isRead: true,
+    category: 'primary',
+    content: `Your monthly statement is ready for review.
+
+Account: Checking ****4567
+Statement Period: August 1-31, 2025
+
+Summary:
+• Beginning Balance: $5,247.83
+• Total Deposits: $4,200.00
+• Total Withdrawals: $3,156.42
+• Ending Balance: $6,291.41
+
+View online: www.firstnational.com/statements
+
+First National Bank`
+  },
+
+  // ========== MORE SOCIAL EMAILS ==========
+  {
+    id: 31,
+    sender: "team@strava.com",
+    subject: "Your Weekly Running Summary - 8 activities",
+    preview: "You ran 28.6 miles this week! See your achievements...",
+    time: "2 hours ago",
+    isRead: false,
+    category: 'social',
+    content: `This Week's Activity Summary
+
+🏃‍♂️ Running Stats:
+• 8 total runs
+• 28.6 miles covered
+• 4:47:32 total time
+• 1,247 feet elevation gain
+• Average pace: 10:02/mile
+
+🏆 Achievements Unlocked:
+• Monthly Distance Goal (85.2/80 miles)
+• Longest Run Badge (8.4 miles)
+• Early Bird Badge (5 morning runs)
+
+👥 Social Activity:
+• 15 kudos given
+• 23 kudos received
+• 3 new followers
+• Joined 2 challenges
+
+Keep up the great work!
+Strava Team`
+  },
+  {
+    id: 32,
+    sender: "updates@youtube.com",
+    subject: "Your video got 1,247 views and 89 likes",
+    preview: "Tutorial: WiFi Security Testing saw great engagement...",
+    time: "4 hours ago",
+    isRead: true,
+    category: 'social',
+    content: `Video Performance Update
+
+Your video "WiFi Security Testing Tutorial" is performing well!
+
+📊 24-Hour Stats:
+• 1,247 views (+32% from last video)
+• 89 likes, 3 dislikes
+• 23 comments
+• 47 new subscribers
+• 5.8% click-through rate
+
+💬 Top Comments:
+"Great explanation of WPA3 vulnerabilities!"
+"When's the next penetration testing video?"
+"This helped me secure my home network"
+
+📈 Audience Insights:
+• 67% male, 33% female
+• Top age group: 25-34
+• Top countries: US, UK, Canada
+• 78% watched to completion
+
+Keep creating amazing content!
+YouTube Creator Team`
+  },
+  {
+    id: 33,
+    sender: "notifications@tiktok.com",
+    subject: "Your video went viral! 847K views",
+    preview: "WiFi hacking myths debunked is trending...",
+    time: "6 hours ago",
+    isRead: false,
+    category: 'social',
+    content: `🔥 YOUR VIDEO IS VIRAL! 🔥
+
+"5 WiFi Hacking Myths Debunked" just hit 847K views!
+
+📊 Viral Stats:
+• 847,329 views in 48 hours
+• 89,432 likes (94.2% like rate)
+• 12,847 shares
+• 3,456 comments
+• 15,678 new followers
+
+🎯 Performance Highlights:
+• #2 trending in #cybersecurity
+• Featured on ForYou page
+• Shared by @TechInfluencer (2M followers)
+• Cross-posted to other platforms
+
+💬 Comments are buzzing:
+"Finally someone explains this properly!"
+"Mind = blown 🤯"
+"Sharing with my IT team"
+
+🚀 Ride the wave! Post your next video soon.
+
+TikTok Creator Team`
+  },
+  {
+    id: 34,
+    sender: "medium@medium.com",
+    subject: "Your article: Network Security earned 1,200 claps",
+    preview: "Your latest publication is gaining traction in the tech community...",
+    time: "1 day ago",
+    isRead: true,
+    category: 'social',
+    content: `Article Performance Report
+
+"Network Security Best Practices in 2025" is performing excellently!
+
+📖 Reading Stats:
+• 1,200 claps
+• 15,678 views
+• 8.4 min average read time
+• 456 people read to the end
+• 89 responses and highlights
+
+💰 Earnings Update:
+• $127.50 earned this month
+• Partner Program bonus qualified
+• Featured in 3 publications
+
+🌟 Community Impact:
+• Boosted by @CyberSecPro
+• Added to 23 reading lists
+• Shared on Twitter 45 times
+• Referenced in 3 other articles
+
+Keep writing great content!
+Medium Partner Program`
+  },
+  {
+    id: 35,
+    sender: "noreply@twitch.tv",
+    subject: "Stream Recap: 89 followers, 847 peak viewers",
+    preview: "Your WiFi security workshop stream had amazing engagement...",
+    time: "2 days ago",
+    isRead: false,
+    category: 'social',
+    content: `Stream Performance Recap
+
+Your "Live WiFi Security Workshop" stream was a hit!
+
+📺 Stream Stats:
+• 3 hours 45 minutes live
+• 847 peak concurrent viewers
+• 2,356 unique viewers
+• 89 new followers
+• 1,234 total chat messages
+
+💰 Monetization:
+• 45 subscribers gained
+• $234.67 in bits received
+• 23 donations ($156.78 total)
+• 3 gifted subscriptions
+
+💬 Chat Highlights:
+• Most used emote: pogPog (178 times)
+• Most active chatters: @TechFan23, @CyberStudent
+• Raid from @SecurityStreamer (234 viewers)
+
+🎯 Next Stream Prep:
+• Requested topic: "Ethical Hacking Basics"
+• 67% want live Q&A segment
+• Viewers want more hands-on demos
+
+Great job engaging your community!
+Twitch Creator Dashboard`
+  },
+
+  // ========== MORE PROMOTIONS EMAILS ==========
+  {
+    id: 36,
+    sender: "deals@cybersectools.com",
+    subject: "🔐 Penetration Testing Bundle - 85% OFF Today Only",
+    preview: "Professional hacking tools, courses, and certification for $97...",
+    time: "1 hour ago",
+    isRead: false,
+    category: 'promotions',
+    content: `🔐 ULTIMATE CYBER SECURITY BUNDLE 🔐
+
+85% OFF - Today Only! (Expires at midnight)
+
+💼 WHAT YOU GET (Worth $647):
+🎯 Professional Penetration Testing Tools
+• Metasploit Pro License (6 months)
+• Burp Suite Professional
+• Nessus Vulnerability Scanner
+• Wireshark Advanced Features
+• Aircrack-ng Premium Suite
+
+📚 Complete Training Library:
+• Certified Ethical Hacker (CEH) Course
+• OSCP Preparation Materials
+• WiFi Security Masterclass
+• Social Engineering Techniques
+• Incident Response Training
+
+🎓 BONUS CONTENT:
+• Live virtual labs (24/7 access)
+• Private Discord community
+• Monthly expert Q&A sessions
+• Job placement assistance
+• Certificate of completion
+
+Regular Price: $647
+Today Only: $97 (85% savings!)
+
+⏰ TIMER: 23:47:12 remaining
+
+[Claim Your Bundle Now] [Compare Packages]
+
+⚠️ This price will NEVER be offered again!
+
+CyberSec Tools Academy`
+  },
+  {
+    id: 37,
+    sender: "sale@techgear.com",
+    subject: "🖥️ Gaming Setup Mega Sale - Build Your Dream Rig",
+    preview: "RTX 4090 builds starting at $1,999. Free RGB upgrades...",
+    time: "3 hours ago",
+    isRead: true,
+    category: 'promotions',
+    content: `🎮 GAMING SETUP MEGA SALE 🎮
+
+Build Your Dream Gaming Rig - Up to 70% OFF Components!
+
+🔥 PRE-BUILT GAMING PCS:
+🏆 RTX 4090 Beast - $1,999 (was $3,499)
+   • i9-14900K, 32GB DDR5, 2TB NVMe
+   • RTX 4090 24GB, 1000W PSU
+   • Liquid cooling + RGB everything
+
+🥈 RTX 4080 Powerhouse - $1,399 (was $2,199)
+   • i7-14700K, 32GB DDR5, 1TB NVMe
+   • RTX 4080 16GB, 850W Gold PSU
+   • Tempered glass case with RGB
+
+🥉 RTX 4070 Ti Gaming - $899 (was $1,399)
+   • i5-14600K, 16GB DDR5, 1TB NVMe
+   • RTX 4070 Ti 12GB, 750W PSU
+   • Air cooling, clean cable management
+
+🎁 FREE UPGRADES INCLUDED:
+• RGB RAM upgrade (worth $89)
+• Premium cable sleeving (worth $129)
+• Custom LED lighting (worth $79)
+• 3-year extended warranty (worth $199)
+
+⚡ PERIPHERALS BUNDLE:
+• Gaming monitor 165Hz - $199 (was $399)
+• Mechanical keyboard RGB - $69 (was $149)
+• Gaming mouse + pad - $39 (was $89)
+• Wireless headset - $79 (was $159)
+
+🚚 FREE: White glove delivery + setup
+💳 0% APR financing for 24 months
+
+[Build Custom PC] [Shop Pre-Built] [Compare Specs]
+
+Sale ends Sunday 11:59 PM!
+
+TechGear Gaming Division`
+  },
+  {
+    id: 38,
+    sender: "offers@coursera.org",
+    subject: "🎓 Google Career Certificates - 7-Day Free Trial",
+    preview: "Data Analytics, UX Design, Project Management certificates...",
+    time: "5 hours ago",
+    isRead: false,
+    category: 'promotions',
+    content: `🎓 ADVANCE YOUR CAREER IN 2025 🎓
+
+Google Career Certificates - 7-Day Free Trial
+
+💼 HIGH-DEMAND CERTIFICATES:
+📊 Google Data Analytics Certificate
+   • 6-month program, beginner-friendly
+   • Python, SQL, Tableau, R
+   • 87% land jobs within 6 months
+   • Average salary: $75,000
+
+🎨 Google UX Design Certificate
+   • Create portfolio-ready projects
+   • Figma, Adobe XD mastery
+   • Design thinking methodology
+   • Average salary: $85,000
+
+📋 Google Project Management Certificate
+   • Agile & Scrum methodologies
+   • Real-world project experience
+   • Leadership & communication skills
+   • Average salary: $95,000
+
+💻 Google IT Support Certificate
+   • Troubleshooting & networking
+   • Linux, Python automation
+   • Help desk to cloud support
+   • Average salary: $65,000
+
+🔐 NEW: Google Cybersecurity Certificate
+   • Security frameworks & tools
+   • Incident response & forensics
+   • Python for security automation
+   • Average salary: $112,000
+
+🎯 WHAT YOU GET:
+✓ Hands-on projects for your portfolio
+✓ Job search assistance & interview prep
+✓ LinkedIn credential badge
+✓ Connect with 150+ hiring partners
+✓ Coursera Career Hub access
+
+💰 PRICING:
+• 7-day free trial (all certificates)
+• Then $49/month (cancel anytime)
+• Financial aid available
+• Employer sponsorship options
+
+[Start Free Trial] [Browse All Certificates] [Check Eligibility]
+
+Coursera Learning Team`
+  },
+  {
+    id: 39,
+    sender: "promo@udemy.com",
+    subject: "🚀 Programming Mega Sale - 1,200+ courses under $20",
+    preview: "Python, JavaScript, AI/ML, Web Development and more...",
+    time: "8 hours ago",
+    isRead: true,
+    category: 'promotions',
+    content: `🚀 PROGRAMMING MEGA SALE 🚀
+
+1,200+ Technology Courses - All Under $20!
+
+🐍 PYTHON MASTERY:
+"Complete Python Developer Bootcamp" - $14.99 (was $199.99)
+• 100+ hours, 45 projects
+• Django, Flask, APIs, automation
+• Machine learning & data science
+⭐ 4.8/5 (89,432 students)
+
+🌐 WEB DEVELOPMENT:
+"Full Stack Web Developer Course" - $16.99 (was $179.99)
+• HTML, CSS, JavaScript, React, Node.js
+• 20 real projects + portfolio
+• MongoDB, PostgreSQL databases
+⭐ 4.7/5 (156,789 students)
+
+🤖 AI & MACHINE LEARNING:
+"Machine Learning A-Z" - $18.99 (was $199.99)
+• Python & R programming
+• TensorFlow, PyTorch, scikit-learn
+• 40+ algorithms explained
+⭐ 4.9/5 (234,567 students)
+
+☁️ CLOUD COMPUTING:
+"AWS Solutions Architect" - $19.99 (was $189.99)
+• Complete AWS certification prep
+• Hands-on labs & projects
+• Practice exams included
+⭐ 4.6/5 (98,765 students)
+
+🔐 CYBERSECURITY:
+"Ethical Hacking & Penetration Testing" - $17.99 (was $199.99)
+• Kali Linux, Metasploit, Wireshark
+• Network & web app security
+• 25+ hacking techniques
+⭐ 4.8/5 (67,890 students)
+
+📱 MOBILE DEVELOPMENT:
+"iOS & Android App Development" - $15.99 (was $189.99)
+• Swift, Kotlin, React Native
+• Publish to App Store & Play Store
+• 10 complete app projects
+⭐ 4.7/5 (123,456 students)
+
+🎁 BONUS PERKS:
+• Lifetime access to all courses
+• Certificate of completion
+• 30-day money-back guarantee
+• Mobile app for learning on-the-go
+• Direct instructor Q&A
+
+⏰ Sale ends in 48 hours!
+
+[Browse All Programming Courses] [AI & Data Science] [Web Development]
+
+Udemy Course Team`
+  },
+
+  // ========== MORE UPDATES EMAILS ==========
+  {
+    id: 40,
+    sender: "security@chrome.com",
+    subject: "Chrome 118 Security Update - Critical Patches Included",
+    preview: "Important security fixes for browsing safety and performance...",
+    time: "4 hours ago",
+    isRead: false,
+    category: 'updates',
+    content: `🔒 CHROME SECURITY UPDATE AVAILABLE 🔒
+
+Google Chrome Version 118.0.5993.117
+
+🛡️ CRITICAL SECURITY FIXES:
+• CVE-2025-1234: V8 JavaScript engine vulnerability
+• CVE-2025-1235: WebGL memory corruption issue
+• CVE-2025-1236: Extension privilege escalation
+• CVE-2025-1237: Site isolation bypass
+• CVE-2025-1238: Password manager security flaw
+
+⚡ PERFORMANCE IMPROVEMENTS:
+• 15% faster page loading
+• Reduced memory usage by 22%
+• Improved battery life on laptops
+• Better tab management efficiency
+• Enhanced video streaming quality
+
+🆕 NEW FEATURES:
+• Enhanced anti-phishing protection
+• Improved password breach detection
+• Better tracking protection
+• Advanced PDF viewer
+• Streamlined settings interface
+
+🔧 DEVELOPER UPDATES:
+• New CSS features support
+• WebAssembly improvements
+• Enhanced DevTools debugging
+• Better Progressive Web App support
+• Updated JavaScript engine (V8 11.8)
+
+📊 UPDATE DETAILS:
+• Download size: 85 MB
+• Installation: Automatic on restart
+• No user action required
+• Backward compatibility maintained
+
+Chrome will update automatically when you restart your browser.
+
+[Restart Chrome Now] [Learn More About Security] [Release Notes]
+
+For enterprise administrators: Update policies available in Admin Console.
+
+Chrome Security Team`
+  },
+  {
+    id: 41,
+    sender: "updates@zoom.us",
+    subject: "Zoom 5.16.2 - Enhanced AI Features and Security",
+    preview: "New AI Companion features, improved meeting security, and performance...",
+    time: "6 hours ago",
+    isRead: true,
+    category: 'updates',
+    content: `📹 ZOOM UPDATE 5.16.2 AVAILABLE 📹
+
+Major update with AI enhancements and security improvements!
+
+🤖 NEW AI COMPANION FEATURES:
+• Real-time meeting transcription (99.5% accuracy)
+• Automatic meeting summaries with action items
+• Smart meeting highlights and key moments
+• Intelligent background noise cancellation
+• AI-powered meeting scheduling suggestions
+• Voice-to-text note taking during calls
+
+🔒 ENHANCED SECURITY:
+• End-to-end encryption for all accounts
+• Advanced waiting room controls
+• Improved screen sharing permissions
+• Enhanced data loss prevention
+• Better authentication methods
+• Compliance dashboard improvements
+
+🎥 VIDEO & AUDIO IMPROVEMENTS:
+• 4K video support for premium accounts
+• AI-enhanced low-light video correction
+• Superior echo cancellation
+• Spatial audio for immersive meetings
+• Custom video filters and effects
+• Multi-camera support for presentations
+
+💼 BUSINESS FEATURES:
+• Advanced meeting analytics
+• Custom company branding options
+• Integration with 200+ business apps
+• Automated meeting recording policies
+• Enhanced admin controls
+• Usage reporting dashboard
+
+📱 MOBILE ENHANCEMENTS:
+• Better battery optimization
+• Improved cellular connection handling
+• Enhanced touch controls
+• Background app refresh optimization
+• Better notification management
+
+🌐 PLATFORM SUPPORT:
+• Windows 11 native optimization
+• macOS Ventura compatibility
+• Linux ARM64 support
+• Chrome OS improvements
+• iOS 17 and Android 14 features
+
+[Download Update] [Schedule Installation] [Enterprise Admin Guide]
+
+The update will install automatically or you can restart Zoom to apply changes immediately.
+
+Zoom Product Team`
+  },
+  {
+    id: 42,
+    sender: "noreply@tesla.com",
+    subject: "Software Update 2025.32.4 Ready for Your Model S",
+    preview: "Enhanced Autopilot, new entertainment features, and performance improvements...",
+    time: "1 day ago",
+    isRead: false,
+    category: 'updates',
+    content: `🚗 TESLA SOFTWARE UPDATE READY 🚗
+
+Version 2025.32.4 - Advanced Features & Improvements
+
+🛣️ AUTOPILOT ENHANCEMENTS:
+• Improved city street navigation
+• Better construction zone handling
+• Enhanced parking assist precision
+• Smarter traffic light recognition
+• Reduced phantom braking incidents
+• More confident highway merging
+
+🎮 ENTERTAINMENT UPDATES:
+• New gaming library (15+ new titles)
+• Netflix offline download support
+• YouTube Premium integration
+• Spotify Hi-Fi audio quality
+• Apple Music spatial audio
+• Steam gaming platform (beta)
+
+⚡ PERFORMANCE OPTIMIZATIONS:
+• 5% increase in range efficiency
+• Faster Supercharging speeds
+• Improved thermal management
+• Smoother acceleration curves
+• Enhanced regenerative braking
+• Better cold weather performance
+
+🔧 NEW FEATURES:
+• Dog Mode scheduling
+• Camp Mode improvements
+• Sentry Mode AI detection
+• Voice command expansion
+• Smart climate preconditioning
+• Advanced trip planning
+
+📱 MOBILE APP INTEGRATION:
+• Remote software updates
+• Enhanced vehicle monitoring
+• Improved sharing features
+• Better service scheduling
+• Location sharing with family
+• Advanced security alerts
+
+🔒 SECURITY & PRIVACY:
+• Enhanced anti-theft protection
+• Improved data encryption
+• Better personal data controls
+• Advanced intrusion detection
+• Secure boot verification
+
+⏱️ INSTALLATION:
+• Download time: 25-45 minutes
+• Installation time: 20 minutes
+• Vehicle must be parked and charging
+• Will not interrupt scheduled trips
+
+[Install Now] [Schedule for Tonight] [Release Notes]
+
+Your Tesla will be even better tomorrow!
+
+Tesla Software Team`
+  },
+
+  // ========== MORE FORUMS EMAILS ==========
+  {
+    id: 43,
+    sender: "forum@hackernews.com",
+    subject: "Show HN: Your project is trending #3",
+    preview: "wi-pi-touch WiFi testing tool has 847 points and 156 comments...",
+    time: "2 hours ago",
+    isRead: false,
+    category: 'forums',
+    content: `🔥 YOUR SUBMISSION IS TRENDING! 🔥
+
+"Show HN: Wi-Pi Touch - WiFi Penetration Testing Tool for Raspberry Pi"
+
+📊 Current Stats:
+• #3 on Hacker News front page
+• 847 points (89% upvoted)
+• 156 comments and growing
+• 15,000+ click-throughs to your repo
+• Featured in HN newsletter
+
+💬 Top Comments:
+"This is exactly what I needed for my security research!"
+"Clean interface and great documentation. Well done!"
+"Finally, a user-friendly pen testing tool."
+"The Gmail decoy feature is brilliant for demos."
+
+🌟 Community Response:
+• 23 "Ask HN" follow-up discussions
+• 8 job offers in comments
+• 45+ GitHub stars since posting
+• Featured on Programming subreddit
+• Shared on Twitter by security experts
+
+📈 Traffic Spike:
+Your GitHub repo is getting massive traffic!
+• 89% spike in visitors
+• 234 new watchers
+• 67 new forks
+• 12 pull requests opened
+
+Keep engaging with the community in the comments!
+
+View discussion: https://news.ycombinator.com/item?id=your-post
+
+Hacker News Team`
+  },
+  {
+    id: 44,
+    sender: "notify@devto.com",
+    subject: "Your article reached 10K views! Featured in newsletter",
+    preview: "WiFi Security Testing Guide is now trending on DEV Community...",
+    time: "4 hours ago",
+    isRead: true,
+    category: 'forums',
+    content: `🎉 MILESTONE ACHIEVED! 🎉
+
+Your article "Complete Guide to WiFi Security Testing in 2025" just hit 10,000 views!
+
+📊 Performance Metrics:
+• 10,247 total views
+• 156 reactions (❤️ 89, 🦄 34, 🔥 33)
+• 67 comments and discussions
+• 234 bookmarks saved
+• 89 shares across platforms
+
+🏆 Community Recognition:
+• Featured in DEV Weekly Newsletter
+• Added to "Security" reading list (1.2K followers)
+• Shared by @ThePracticalDev (98K followers)
+• Cross-posted to r/cybersecurity
+• Mentioned in 5 other articles
+
+💬 Engaged Community:
+Top comment: "This helped me secure my home network. Thank you!"
+Question: "Can you do a follow-up on enterprise WiFi security?"
+Request: "More hands-on tutorials like this please!"
+
+📈 Growth Impact:
+• +234 new followers
+• Profile visits up 890%
+• 45 new GitHub followers
+• 23 LinkedIn connection requests
+• Featured on DEV Community homepage
+
+🎯 Next Steps:
+Your audience is asking for:
+• Enterprise WiFi security tutorial
+• Live streaming the testing process
+• Tool recommendations and reviews
+
+Keep creating amazing content!
+
+View article: https://dev.to/your-username/wifi-security-guide
+
+DEV Community Team`
+  },
+  {
+    id: 45,
+    sender: "community@freecodecamp.org",
+    subject: "Your course proposal approved! Teaching opportunity available",
+    preview: "WiFi Security Fundamentals course has been accepted for publication...",
+    time: "1 day ago",
+    isRead: false,
+    category: 'forums',
+    content: `🎓 CONGRATULATIONS! COURSE APPROVED 🎓
+
+Your course proposal "WiFi Security Fundamentals for Developers" has been accepted!
+
+📚 COURSE DETAILS:
+• Target audience: 50,000+ developers
+• Estimated completion time: 8-12 hours
+• Format: Interactive lessons + hands-on labs
+• Certification: freeCodeCamp verified certificate
+• Launch date: October 15, 2025
+
+💰 INSTRUCTOR BENEFITS:
+• Revenue sharing: 70% of premium enrollments
+• Profile featured on instructor page
+• Access to exclusive educator community
+• Teaching resources and support
+• Marketing assistance for course promotion
+
+📋 NEXT STEPS:
+1. Review course content guidelines
+2. Submit detailed curriculum outline
+3. Record introduction video
+4. Prepare first 3 lesson modules
+5. Beta test with selected students
+
+🎯 COURSE STRUCTURE:
+Module 1: WiFi Protocol Fundamentals
+Module 2: Common Security Vulnerabilities
+Module 3: Penetration Testing Basics
+Module 4: Defensive Security Measures
+Module 5: Legal and Ethical Considerations
+Module 6: Hands-on Lab Projects
+
+👥 SUPPORT TEAM:
+• Content reviewer: Sarah Chen
+• Technical producer: Mike Johnson
+• Marketing coordinator: Lisa Wang
+• Community manager: Alex Thompson
+
+📅 IMPORTANT DATES:
+• Content submission deadline: September 20
+• Beta testing phase: September 25-30
+• Final review: October 1-10
+• Course launch: October 15
+
+[Access Instructor Portal] [Download Content Guidelines] [Schedule Planning Call]
+
+We're excited to have you join our educator community!
+
+freeCodeCamp Education Team`
+  },
+  {
+    id: 46,
+    sender: "updates@spiceworks.com",
+    subject: "Your IT question got 23 expert answers",
+    preview: "Network security best practices discussion is very active...",
+    time: "2 days ago",
+    isRead: true,
+    category: 'forums',
+    content: `Your Question is Popular!
+
+"What are the current best practices for enterprise WiFi security in 2025?"
+
+📊 Discussion Stats:
+• 23 expert answers posted
+• 156 IT professionals viewing
+• 89 upvotes on your question
+• 45 professionals following thread
+• Featured in "Trending Discussions"
+
+🏆 TOP-RATED ANSWERS:
+
+★★★★★ @NetworkAdmin_Pro (5 years experience)
+"Implement WPA3-Enterprise with certificate-based authentication..."
+↗️ 34 upvotes, 8 replies
+
+★★★★★ @CyberSec_Expert (10 years experience)
+"Don't forget about RADIUS server configuration and network segmentation..."
+↗️ 28 upvotes, 12 replies
+
+★★★★★ @WiFi_Specialist (8 years experience)
+"The key is layered security: strong encryption + monitoring + access control..."
+↗️ 25 upvotes, 6 replies
+
+💡 KEY INSIGHTS FROM DISCUSSION:
+• WPA3 adoption is accelerating
+• Zero-trust networking is becoming standard
+• AI-powered threat detection is essential
+• Regular security audits are critical
+
+🔔 New replies keep coming in! 
+Stay engaged to get the best advice from the community.
+
+[View Full Discussion] [Ask Follow-up Question] [Thank Contributors]
+
+Spiceworks IT Community`
+  },
+  {
+    id: 47,
+    sender: "discuss@kalilinux.org",
+    subject: "Kali Linux 2025.3 Release Discussion - Your input requested",
+    preview: "Community feedback needed for new penetration testing tools...",
+    time: "3 days ago",
+    isRead: false,
+    category: 'forums',
+    content: `Kali Linux 2025.3 Release Discussion
+
+The Kali team wants YOUR feedback on the upcoming release!
+
+🔧 PROPOSED NEW TOOLS:
+• WiFiPhisher 2.0 - Enhanced evil twin attacks
+• BloodHound CE - Active Directory assessment
+• Nuclei - Vulnerability scanner improvements
+• Custom-Wordlists - AI-generated passwords
+• NetHunter Pro - Android penetration platform
+
+📊 COMMUNITY POLL RESULTS:
+"Which tools should be prioritized?"
+1. WiFi security tools (34%)
+2. Web application testing (28%)
+3. Active Directory assessment (22%)
+4. Mobile device testing (16%)
+
+💬 YOUR CONTRIBUTIONS:
+Based on your WiFi expertise, the community specifically wants your input on:
+• WiFiPhisher integration best practices
+• Aircrack-ng improvements needed
+• New wireless attack vectors to support
+• User interface enhancements for beginners
+
+🎯 AREAS FOR FEEDBACK:
+• Tool selection and prioritization
+• Documentation improvements
+• Training materials needed
+• Integration with cloud platforms
+• Performance optimizations
+
+📅 TIMELINE:
+• Feedback collection: September 1-15
+• Beta testing: September 20-30
+• Release candidate: October 5
+• Final release: October 15
+
+[Share Your Feedback] [Join Beta Testing] [View Current Discussion]
+
+Your expertise in WiFi security makes your input especially valuable!
+
+Kali Linux Development Team`
+  },
+  {
+    id: 48,
+    sender: "security@owasp.org",
+    subject: "OWASP Top 10 2025 Draft - Community Review Period",
+    preview: "New security risks identified, including IoT and wireless threats...",
+    time: "1 week ago",
+    isRead: true,
+    category: 'forums',
+    content: `OWASP Top 10 2025 - Community Review
+
+Help shape the future of application security!
+
+📋 PROPOSED TOP 10 FOR 2025:
+1. Injection Flaws (persistent threat)
+2. Broken Authentication (evolved attacks)
+3. Sensitive Data Exposure (cloud focus)
+4. XML External Entities (XXE)
+5. Broken Access Control
+6. Security Misconfiguration
+7. Cross-Site Scripting (XSS)
+8. Insecure Deserialization
+9. 🆕 IoT and Wireless Security Flaws
+10. 🆕 AI/ML Model Vulnerabilities
+
+🔍 NEW CATEGORIES SPOTLIGHT:
+
+🌐 IoT and Wireless Security Flaws:
+• Weak WiFi implementations
+• Insecure device communications
+• Poor encryption standards
+• Default credential usage
+
+🤖 AI/ML Model Vulnerabilities:
+• Model poisoning attacks
+• Adversarial input manipulation
+• Data privacy breaches
+• Bias and fairness issues
+
+💭 COMMUNITY DISCUSSION POINTS:
+• Should wireless security be separate category?
+• How to address cloud-native vulnerabilities?
+• AI security impact on traditional apps
+• IoT security framework integration
+
+📊 FEEDBACK METRICS:
+• 1,247 security professionals participating
+• 89 formal comments submitted
+• 156 organizations represented
+• 23 countries providing input
+
+Your expertise in WiFi and network security is particularly valuable for the IoT/Wireless category!
+
+[Submit Formal Feedback] [Join Working Group] [Download Draft PDF]
+
+OWASP Foundation`
   }];
 
 export const categoryInfo = {

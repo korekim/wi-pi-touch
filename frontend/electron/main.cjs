@@ -14,7 +14,7 @@ function createWindow() {
   });
 
   // dev vs prod
-  win.loadURL('http://127.0.0.1:3000/ui');
+  win.loadURL('http://127.0.0.1:3000');
 
 }
 
