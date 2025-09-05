@@ -22,10 +22,6 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
     ));
   };
 
-  const handleBackToInbox = () => {
-    setSelectedEmail(null);
-  };
-
   // Filter emails by category
   const filteredEmails = emails.filter(email => email.category === activeCategory);
   const unreadCount = filteredEmails.filter(email => !email.isRead).length;
@@ -108,31 +104,6 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
               <span className="text-2xl text-[#5f6368] font-normal absolute left-8 ml-1">Gmail</span>
             </div>
           </div>
-          {selectedEmail && (
-            <button 
-              onClick={handleBackToInbox}
-              className="bg-[#1a73e8] hover:bg-[#1557b0] text-white px-4 py-2 rounded-md text-sm transition-colors flex items-center space-x-2 shadow-sm"
-              style={{
-                ...buttonResetStyles,
-                backgroundColor: '#1a73e8',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                fontSize: '14px',
-                fontWeight: 500,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-              </svg>
-              <span>Back</span>
-            </button>
-          )}
         </div>
         
         {/* Gmail Search Bar */}
@@ -931,50 +902,36 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
               </>
               ) : (
                 // Gmail Email Detail View
-                <div className="h-full overflow-y-auto p-6">
-                  {/* Email Header */}
-                  <div className="bg-white rounded-lg shadow-sm border border-[#dadce0] mb-6" style={{
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                boxShadow: '0 1px 3px 0 rgba(60,64,67,.3)',
-                border: '1px solid #dadce0',
-                marginBottom: '24px',
-                all: 'unset',
-                display: 'block',
-                boxSizing: 'border-box'
-              }}>
-                <div className="border-b border-[#dadce0] p-6" style={{
-                  borderBottom: '1px solid #dadce0',
-                  padding: '24px',
-                  all: 'unset',
-                  display: 'block',
-                  boxSizing: 'border-box'
-                }}>
-                  <div className="flex items-start justify-between mb-4" style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    marginBottom: '16px',
-                    all: 'unset',
-                    boxSizing: 'border-box'
+                <div className="h-full overflow-y-auto p-4">
+                  {/* Email Container */}
+                  <div className="bg-white rounded-lg shadow-sm border border-[#dadce0] w-full max-w-none" style={{
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    boxShadow: '0 1px 3px 0 rgba(60,64,67,.3)',
+                    border: '1px solid #dadce0',
+                    display: 'block',
+                    boxSizing: 'border-box',
+                    width: '100%',
+                    minHeight: '80vh'
                   }}>
-                    <h1 className="text-2xl font-normal text-[#202124] flex-1 pr-4" style={{
-                      fontSize: '24px',
-                      fontWeight: 'normal',
-                      color: '#202124',
-                      flex: '1',
-                      paddingRight: '16px',
-                      fontFamily: "'Google Sans', 'Roboto', sans-serif",
-                      lineHeight: '1.4',
-                      margin: '0',
-                      all: 'unset',
-                      display: 'block',
+                    <div className="border-b border-[#dadce0] p-6" style={{
+                      borderBottom: '1px solid #dadce0',
+                      padding: '24px 24px 16px 24px',
                       boxSizing: 'border-box'
                     }}>
-                      {selectedEmail.subject}
-                    </h1>
-                    <div className="flex items-center space-x-2">
-                      <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#fbbc04]" style={{
+                  {/* Action Buttons Header */}
+                  <div className="flex items-center mb-4" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    marginBottom: '16px',
+                    marginLeft: '16px',
+                    gap: '8px'
+                  }}>
+                    <button 
+                      onClick={() => setSelectedEmail(null)}
+                      className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#1a73e8]" 
+                      style={{
                         ...buttonResetStyles,
                         padding: '8px',
                         borderRadius: '50%',
@@ -983,60 +940,80 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                        </svg>
-                      </button>
-                      <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#1a73e8]" style={{
-                        ...buttonResetStyles,
-                        padding: '8px',
-                        borderRadius: '50%',
-                        color: '#5f6368',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                        </svg>
-                      </button>
-                      <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#ea4335]" style={{
-                        ...buttonResetStyles,
-                        padding: '8px',
-                        borderRadius: '50%',
-                        color: '#5f6368',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                        </svg>
-                      </button>
-                      <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#1a73e8]" style={{
-                        ...buttonResetStyles,
-                        padding: '8px',
-                        borderRadius: '50%',
-                        color: '#5f6368',
-                        transition: 'all 0.2s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                        </svg>
-                      </button>
-                    </div>
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                      </svg>
+                    </button>
+                    <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#fbbc04]" style={{
+                      ...buttonResetStyles,
+                      padding: '8px',
+                      borderRadius: '50%',
+                      color: '#5f6368',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                      </svg>
+                    </button>
+                    <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#1a73e8]" style={{
+                      ...buttonResetStyles,
+                      padding: '8px',
+                      borderRadius: '50%',
+                      color: '#5f6368',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                      </svg>
+                    </button>
+                    <button className="p-2 hover:bg-[#f8f9fa] rounded-full transition-colors text-[#5f6368] hover:text-[#1a73e8]" style={{
+                      ...buttonResetStyles,
+                      padding: '8px',
+                      borderRadius: '50%',
+                      color: '#5f6368',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                      </svg>
+                    </button>
                   </div>
 
-                  {/* Sender Info */}
-                  <div className="flex items-center justify-between">
+                  {/* Subject Line */}
+                  <h1 className="text-2xl font-normal text-[#202124]" style={{
+                    fontSize: '24px',
+                    fontWeight: 'normal',
+                    color: '#202124',
+                    fontFamily: "'Google Sans', 'Roboto', sans-serif",
+                    lineHeight: '1.4',
+                    margin: '0 0 0 16px',
+                    display: 'block',
+                    boxSizing: 'border-box'
+                  }}>
+                    {selectedEmail.subject}
+                  </h1>
+                </div>
+
+                {/* Sender Info */}
+                <div className="flex items-center justify-between" style={{
+                  marginLeft: '16px',
+                  marginRight: '16px'
+                }}>
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#4285f4] to-[#34a853] rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#4285f4] to-[#34a853] rounded-full flex items-center justify-center text-white font-medium text-sm shadow-sm" style={{
+                        marginLeft: '16px'
+                      }}>
                         {selectedEmail.sender.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -1069,64 +1046,90 @@ export default function DecoyEmail({ isVisible, onClose }: DecoyEmailProps) {
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-[#5f6368] font-medium">{selectedEmail.time}</div>
-                      <button className="text-xs text-[#5f6368] hover:bg-[#f8f9fa] px-2 py-1 rounded flex items-center space-x-1 mt-1 hover:text-[#fbbc04] transition-colors">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                        </svg>
-                        <span>Star</span>
-                      </button>
                     </div>
                   </div>
-                </div>
 
-                {/* Email Content */}
-                <div className="p-6" style={{
-                  padding: '24px',
-                  all: 'unset',
-                  display: 'block',
-                  boxSizing: 'border-box'
-                }}>
-                  <div className="whitespace-pre-line text-[#202124] leading-relaxed text-sm font-normal" style={{
-                    whiteSpace: 'pre-line',
-                    color: '#202124',
-                    lineHeight: '1.6',
-                    fontSize: '14px',
-                    fontWeight: 'normal',
-                    fontFamily: "'Google Sans', 'Roboto', sans-serif",
-                    all: 'unset',
+                  {/* Email Content */}
+                  <div className="p-6" style={{
+                    padding: '24px 24px 16px 24px',
                     display: 'block',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                    maxWidth: '100%'
                   }}>
-                    {selectedEmail.content}
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-4 p-6 pt-4 border-t border-[#dadce0]" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  padding: '16px 24px 24px',
-                  borderTop: '1px solid #dadce0',
-                  all: 'unset',
-                  boxSizing: 'border-box'
-                }}>
-                  <button className="bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-md text-white px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2">
+                    <div className="whitespace-pre-line text-[#202124] leading-relaxed text-sm font-normal" style={{
+                      whiteSpace: 'pre-line',
+                      color: '#202124',
+                      lineHeight: '1.6',
+                      fontSize: '14px',
+                      fontWeight: 'normal',
+                      fontFamily: "'Google Sans', 'Roboto', sans-serif",
+                      display: 'block',
+                      boxSizing: 'border-box',
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
+                      maxWidth: '100%',
+                      overflow: 'hidden'
+                    }}>
+                      {selectedEmail.content}
+                    </div>
+                                      {/* Action Buttons */}
+                  <div style={{
+                    all: 'unset',
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    gap: '16px',
+                    padding: '16px 24px 24px 24px',
+                    borderTop: '1px solid #dadce0',
+                    boxSizing: 'border-box',
+                    width: '100%',
+                    background: 'white'
+                  }}>
+                  <button className="bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-md text-white px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2" style={{
+                    ...buttonResetStyles,
+                    backgroundColor: '#1a73e8',
+                    color: 'white',
+                    padding: '8px 24px',
+                    borderRadius: '24px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease',
+                    border: 'none'
+                  }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
                     </svg>
                     <span>Reply</span>
                   </button>
-                  <button className="border border-[#dadce0] hover:bg-[#f8f9fa] hover:shadow-sm text-[#3c4043] px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2">
+                  <button className="border border-[#dadce0] hover:bg-[#f8f9fa] hover:shadow-sm text-[#3c4043] px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center space-x-2" style={{
+                    ...buttonResetStyles,
+                    backgroundColor: 'white',
+                    color: '#3c4043',
+                    padding: '8px 24px',
+                    borderRadius: '24px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease',
+                    border: '1px solid #dadce0'
+                  }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 8V4l8 8-8 8v-4H4V8z"/>
                     </svg>
                     <span>Forward</span>
                   </button>
                 </div>
+                  </div>
+                </div>
               </div>
-            </div>
-                )}
+              )}
             </div>
         </div>
       </div>
