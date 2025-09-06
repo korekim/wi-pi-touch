@@ -58,30 +58,42 @@ export default function ScanPage() {
       clearInterval(pollIntervalRef.current);
     }
 
+    console.log("Starting polling for scan results...");
+
     // Start polling for results every 3 seconds
     pollIntervalRef.current = setInterval(async () => {
       if (!isMountedRef.current) return;
       
       const selectedAdapter = getSelectedAdapter();
-      if (!selectedAdapter) return;
+      if (!selectedAdapter) {
+        console.log("No adapter selected, skipping poll");
+        return;
+      }
 
       try {
+        console.log(`Polling scan results for adapter: ${selectedAdapter}`);
         const response = await fetch(`http://localhost:8000/api/scan/results/${selectedAdapter}`);
         const data = await response.json();
+        
+        console.log("Poll response:", data);
         
         if (!isMountedRef.current) return;
         
         if (data.status === "success") {
+          console.log(`Found ${data.networks?.length || 0} networks`);
           setScannedNetworks(data.networks || []);
           
           // If scan stopped, update state
           if (!data.scanning) {
+            console.log("Scan stopped, updating state");
             setIsScanning(false);
             if (pollIntervalRef.current) {
               clearInterval(pollIntervalRef.current);
               pollIntervalRef.current = null;
             }
           }
+        } else {
+          console.error("Poll failed:", data);
         }
       } catch (error) {
         console.error("Error polling scan results:", error);
@@ -151,6 +163,7 @@ export default function ScanPage() {
         
         if (data.status === "started" || data.status === "already_running") {
           setIsScanning(true);
+          console.log("Scan started successfully, beginning polling...");
           startPolling();
         } else {
           setScanError(`Failed to start scan: ${data.message}`);
@@ -159,6 +172,27 @@ export default function ScanPage() {
         console.error("Error starting scan:", error);
         setScanError("Failed to start scan - check if backend is running");
       }
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    const selectedAdapter = getSelectedAdapter();
+    if (!selectedAdapter) return;
+
+    try {
+      console.log("Manual refresh for adapter:", selectedAdapter);
+      const response = await fetch(`http://localhost:8000/api/scan/results/${selectedAdapter}`);
+      const data = await response.json();
+      
+      console.log("Manual refresh response:", data);
+      
+      if (data.status === "success") {
+        setScannedNetworks(data.networks || []);
+        setIsScanning(data.scanning || false);
+      }
+    } catch (error) {
+      console.error("Manual refresh error:", error);
+      setScanError("Failed to refresh results");
     }
   };
 
@@ -212,6 +246,15 @@ export default function ScanPage() {
           >
             {isScanning ? "Stop Scan" : "Start Scan"}
           </button>
+          
+          {getSelectedAdapter() && (
+            <button 
+              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-all shadow-custom"
+              onClick={handleManualRefresh}
+            >
+              Refresh Results
+            </button>
+          )}
         </div>
 
         {/* Real-time Scan Status */}
@@ -231,6 +274,10 @@ export default function ScanPage() {
                 }
               </div>
             )}
+            {/* Debug info */}
+            <div className="text-xs text-muted-foreground mt-2 font-mono">
+              Debug: isScanning={isScanning.toString()}, networksCount={scannedNetworks.length}, adapter={getSelectedAdapter()}
+            </div>
           </div>
         </div>
 
