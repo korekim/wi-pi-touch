@@ -183,27 +183,6 @@ export default function ScanPage() {
     }
   };
 
-  const handleManualRefresh = async () => {
-    const selectedAdapter = getSelectedAdapter();
-    if (!selectedAdapter) return;
-
-    try {
-      console.log("Manual refresh for adapter:", selectedAdapter);
-      const response = await fetch(`http://localhost:8000/api/scan/results/${selectedAdapter}`);
-      const data = await response.json();
-      
-      console.log("Manual refresh response:", data);
-      
-      if (data.status === "success") {
-        setScannedNetworks(data.networks || []);
-        setIsScanning(data.scanning || false);
-      }
-    } catch (error) {
-      console.error("Manual refresh error:", error);
-      setScanError("Failed to refresh results");
-    }
-  };
-
   return (
     <div className="p-6 bg-background">
       <h2 className="text-2xl font-bold mb-4 text-foreground">WiFi Network Scan</h2>
@@ -272,15 +251,6 @@ export default function ScanPage() {
           >
             {isScanning ? "Stop Scan" : "Start Scan"}
           </button>
-          
-          {getSelectedAdapter() && (
-            <button 
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-all shadow-custom"
-              onClick={handleManualRefresh}
-            >
-              Refresh Results
-            </button>
-          )}
         </div>
 
         {/* Real-time Scan Status */}
