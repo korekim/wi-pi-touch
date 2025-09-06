@@ -113,10 +113,26 @@ class ScanManager:
                 if not line:
                     continue
                     
-                # Skip ANSI escape sequences and clear screen commands
-                if '\x1b' in line or line.startswith('\033'):
+                # Handle ANSI escape sequences more selectively
+                # Only skip clear screen and cursor movement, but allow lines with data
+                if line.startswith('\033[2J') or line.startswith('\033[H') or line == '\033[2J\033[H':
+                    # Clear screen commands
                     if line_count <= 20:
-                        print(f"  -> Skipping ANSI line")
+                        print(f"  -> Skipping clear screen command")
+                    continue
+                elif '\033[' in line and not any(keyword in line for keyword in ['BSSID', 'PWR', 'Beacons', ':']):
+                    # Skip cursor movement and formatting commands that don't contain data
+                    if line_count <= 20:
+                        print(f"  -> Skipping ANSI formatting line")
+                    continue
+                    
+                # Clean ANSI escape sequences from the line but keep the content
+                import re
+                cleaned_line = re.sub(r'\033\[[0-9;]*m', '', line)  # Remove color codes
+                cleaned_line = re.sub(r'\033\[[0-9;]*[A-Za-z]', '', cleaned_line)  # Remove other ANSI sequences
+                line = cleaned_line.strip()
+                
+                if not line:
                     continue
                     
                 # Detect section headers - be more flexible with header detection
