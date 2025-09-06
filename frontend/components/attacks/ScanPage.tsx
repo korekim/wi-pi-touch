@@ -84,12 +84,15 @@ export default function ScanPage() {
         const data = await response.json();
         
         console.log("Poll response:", data);
+        console.log("Current scannedNetworks count before update:", scannedNetworks.length);
         
         if (!isMountedRef.current) return;
         
         if (data.status === "success") {
-          console.log(`Found ${data.networks?.length || 0} networks`);
+          console.log(`Backend reports ${data.networks?.length || 0} networks`);
+          console.log("Networks received:", data.networks);
           setScannedNetworks(data.networks || []);
+          console.log("Updated scannedNetworks in state");
           
           // If scan stopped, update state
           if (!data.scanning) {
