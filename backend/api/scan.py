@@ -93,36 +93,55 @@ class ScanManager:
         networks_dict = {}
         current_networks = []
         parsing_mode = None
+        line_count = 0
+        
+        print("Starting real-time output parsing...")
         
         try:
             for line in iter(self.process.stdout.readline, ''):
                 if self.stop_event.is_set():
                     break
                     
+                line_count += 1
+                raw_line = line
                 line = line.strip()
+                
+                # Debug: print first 20 lines to see what we're getting
+                if line_count <= 20:
+                    print(f"Line {line_count}: '{raw_line.rstrip()}'")
+                
                 if not line:
                     continue
                     
                 # Skip ANSI escape sequences and clear screen commands
                 if '\x1b' in line or line.startswith('\033'):
+                    if line_count <= 20:
+                        print(f"  -> Skipping ANSI line")
                     continue
                     
                 # Detect section headers
                 if 'BSSID' in line and 'PWR' in line and 'Beacons' in line:
                     parsing_mode = 'networks'
+                    print(f"Found networks header at line {line_count}: {line}")
                     continue
                 elif 'BSSID' in line and 'Station MAC' in line:
                     parsing_mode = 'stations'
+                    print(f"Found stations header at line {line_count}: {line}")
                     continue
                 elif 'CH' in line and 'Elapsed' in line:
                     # This is the header line, skip it
+                    print(f"Found status header at line {line_count}: {line}")
                     continue
                     
                 # Parse network data
                 if parsing_mode == 'networks':
+                    print(f"Parsing network line {line_count}: '{line}'")
                     network = self._parse_network_line(line)
                     if network:
+                        print(f"  -> Parsed network: {network}")
                         networks_dict[network['bssid']] = network
+                    else:
+                        print(f"  -> Failed to parse network line")
                         
                 elif parsing_mode == 'stations':
                     # We can ignore station data for now
@@ -145,12 +164,16 @@ class ScanManager:
             # Split by multiple spaces to handle formatting
             parts = [part.strip() for part in line.split() if part.strip()]
             
+            print(f"    Network line parts ({len(parts)}): {parts}")
+            
             if len(parts) < 6:
+                print(f"    -> Too few parts, skipping")
                 return None
                 
             # Basic validation - first part should be a MAC address
             bssid = parts[0]
             if ':' not in bssid or len(bssid) < 17:
+                print(f"    -> Invalid BSSID format: {bssid}")
                 return None
                 
             # Extract fields (airodump-ng format varies, so we need to be flexible)
@@ -159,6 +182,8 @@ class ScanManager:
             data = parts[3] if len(parts) > 3 else ""
             speed = parts[4] if len(parts) > 4 else ""
             channel = parts[5] if len(parts) > 5 else ""
+            
+            print(f"    -> Basic fields: BSSID={bssid}, PWR={power}, CH={channel}")
             
             # ESSID is usually the last part(s), might contain spaces
             essid = ""
@@ -190,12 +215,16 @@ class ScanManager:
             if not essid:
                 essid = "Hidden"
                 
+            print(f"    -> Final: ESSID='{essid}', ENC='{encryption}'")
+                
             # Filter out obviously invalid entries
             try:
                 power_val = int(power) if power and power.lstrip('-').isdigit() else -100
                 if power_val < -100:  # Too weak, probably noise
+                    print(f"    -> Signal too weak: {power_val}")
                     return None
             except ValueError:
+                print(f"    -> Could not parse power: {power}")
                 pass
                 
             return {
