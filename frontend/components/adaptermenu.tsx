@@ -171,7 +171,7 @@ export default function AdapterMenu({ id }: AdapterMenuProps) {
                     <option value="">-- None --</option>
                     {scannedNetworks.map((network, index) => (
                         <option key={index} value={`${network.bssid}|${network.ssid}`}>
-                            {network.ssid} ({network.signal}dBm)
+                            {network.ssid} - {network.bssid} ({network.signal}dBm)
                         </option>
                     ))}
                 </select>
