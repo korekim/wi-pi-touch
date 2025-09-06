@@ -65,7 +65,7 @@ class ScanManager:
         """Background worker that runs airodump-ng and parses real-time output"""
         try:
             # Start airodump-ng process with real-time output (no file writing)
-            cmd = f"sudo airodump-ng {self.adapter} --channel 1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48,149,153,157,161,165"
+            cmd = f"sudo airodump-ng {self.adapter}"
             print(f"Starting background scan with real-time output: {cmd}")
             
             self.process = subprocess.Popen(
