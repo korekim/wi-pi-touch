@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdapterMenu from "@/components/adaptermenu";
 import { AdapterProvider } from "@/components/AdapterContext";
 import { NetworkProvider } from "@/components/NetworkContext";
@@ -15,6 +15,29 @@ type AttackType = 'scan' | 'deauth' | 'handshake' | 'eviltwin';
 export default function Home() {
   const [activeAttack, setActiveAttack] = useState<AttackType>('scan');
   const [showDecoyEmail, setShowDecoyEmail] = useState(false);
+  const [networkManagerKilled, setNetworkManagerKilled] = useState(false);
+  const [nmLoading, setNmLoading] = useState(false);
+
+  // Check network manager status on component mount
+  useEffect(() => {
+    const checkNetworkManagerStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/network-manager/status");
+        const data = await response.json();
+        
+        if (data.status === "success") {
+          // If NetworkManager is NOT running, we assume it was killed
+          setNetworkManagerKilled(!data.running);
+        }
+      } catch (error) {
+        console.error("Error checking network manager status:", error);
+        // Default to false if we can't check
+        setNetworkManagerKilled(false);
+      }
+    };
+    
+    checkNetworkManagerStatus();
+  }, []);
 
   const renderContent = () => {
     switch (activeAttack) {
@@ -31,6 +54,33 @@ export default function Home() {
     }
   };
 
+  const handleNetworkManagerToggle = async () => {
+    setNmLoading(true);
+    try {
+      const endpoint = networkManagerKilled ? "/api/network-manager/start" : "/api/network-manager/kill";
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      
+      if (data.status === "success") {
+        setNetworkManagerKilled(!networkManagerKilled);
+        alert(`${data.message}\n\nOutput:\n${data.output || "Success"}`);
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error toggling network manager:", error);
+      alert("Failed to toggle network manager - check if backend is running");
+    } finally {
+      setNmLoading(false);
+    }
+  };
+
   return (
     <AdapterProvider>
       <NetworkProvider>
@@ -38,13 +88,28 @@ export default function Home() {
           {/* Main Header */}
           <div className="text-center py-6 bg-card border-b border-border relative">
             <h1 className="text-4xl font-bold text-foreground">Wi-Pi Touch</h1>
-            {/* Decoy Button */}
-            <button 
-              onClick={() => setShowDecoyEmail(true)}
-              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-secondary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-custom"
-            >
-              Mail
-            </button>
+            {/* Header Buttons */}
+            <div className="absolute right-6 top-1/2 transform -translate-y-1/2 flex space-x-2">
+              {/* Network Manager Toggle Button */}
+              <button 
+                onClick={handleNetworkManagerToggle}
+                disabled={nmLoading}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-custom ${
+                  networkManagerKilled 
+                    ? "bg-green-600 hover:bg-green-700 text-white" 
+                    : "bg-red-600 hover:bg-red-700 text-white"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {nmLoading ? "..." : networkManagerKilled ? "Start NM" : "Kill NM"}
+              </button>
+              {/* Decoy Email Button */}
+              <button 
+                onClick={() => setShowDecoyEmail(true)}
+                className="bg-primary hover:bg-secondary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-custom"
+              >
+                Mail
+              </button>
+            </div>
           </div>
           
           {/* Adapter Menu Header */}

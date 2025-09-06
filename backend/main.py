@@ -10,7 +10,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 # Import route modules
-from api import hello, interfaces, adapter, scan, deauth, handshake, eviltwin
+from api import hello, interfaces, adapter, scan, deauth, handshake, eviltwin, network_manager
 
 app = FastAPI()
 
@@ -31,6 +31,7 @@ app.include_router(scan.router, prefix="/api", tags=["scan"])
 app.include_router(deauth.router, prefix="/api", tags=["attacks"])
 app.include_router(handshake.router, prefix="/api", tags=["attacks"])
 app.include_router(eviltwin.router, prefix="/api", tags=["attacks"])
+app.include_router(network_manager.router, prefix="/api", tags=["network-manager"])
 
 # --- Serve exported Next app ---
 # Adjust path to your built folder on the Pi:

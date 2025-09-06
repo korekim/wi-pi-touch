@@ -8,6 +8,7 @@ export default function ScanPage() {
   const [showHidden, setShowHidden] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [selectedScanAdapter, setSelectedScanAdapter] = useState<string>("");
   
   const { scannedNetworks, setScannedNetworks } = useNetworkContext();
   const { selectedAdapters } = useAdapterContext();
@@ -26,10 +27,17 @@ export default function ScanPage() {
     };
   }, []);
 
-  // Get the first available adapter for scanning
-  const getSelectedAdapter = () => {
+  // Set default adapter when adapters are available
+  useEffect(() => {
     const adapters = Object.values(selectedAdapters);
-    return adapters.length > 0 ? adapters[0] : null;
+    if (adapters.length > 0 && !selectedScanAdapter) {
+      setSelectedScanAdapter(adapters[0]);
+    }
+  }, [selectedAdapters, selectedScanAdapter]);
+
+  // Get the selected adapter for scanning
+  const getSelectedAdapter = () => {
+    return selectedScanAdapter || null;
   };
 
   // Check current scan status on component mount
@@ -204,16 +212,34 @@ export default function ScanPage() {
           Scan for nearby WiFi networks and gather information about access points. Scanning runs continuously until stopped.
         </p>
         
-        {/* Adapter Status */}
+        {/* Adapter Selection */}
         <div className="mb-4 p-3 bg-muted border border-border rounded">
-          <h4 className="text-sm font-medium text-foreground mb-1">Selected Adapter:</h4>
-          <div className="text-sm">
-            {getSelectedAdapter() ? (
-              <span className="text-primary font-mono">{getSelectedAdapter()}</span>
-            ) : (
-              <span className="text-destructive">No adapter selected - please select one in the adapter menu above</span>
+          <h4 className="text-sm font-medium text-foreground mb-2">Select Adapter for Scanning:</h4>
+          <div className="flex items-center space-x-2">
+            <select 
+              value={selectedScanAdapter} 
+              onChange={(e) => setSelectedScanAdapter(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm border border-border rounded bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              disabled={isScanning}
+            >
+              <option value="">Select an adapter...</option>
+              {Object.values(selectedAdapters).map((adapter) => (
+                <option key={adapter} value={adapter}>
+                  {adapter}
+                </option>
+              ))}
+            </select>
+            {isScanning && (
+              <span className="text-xs text-muted-foreground">
+                (Cannot change while scanning)
+              </span>
             )}
           </div>
+          {Object.values(selectedAdapters).length === 0 && (
+            <p className="text-sm text-destructive mt-2">
+              No adapters available - please select adapters in the adapter menu above
+            </p>
+          )}
         </div>
         
         {/* Error Display */}
@@ -276,7 +302,7 @@ export default function ScanPage() {
             )}
             {/* Debug info */}
             <div className="text-xs text-muted-foreground mt-2 font-mono">
-              Debug: isScanning={isScanning.toString()}, networksCount={scannedNetworks.length}, adapter={getSelectedAdapter()}
+              Debug: isScanning={isScanning.toString()}, networksCount={scannedNetworks.length}, selectedAdapter={selectedScanAdapter}
             </div>
           </div>
         </div>

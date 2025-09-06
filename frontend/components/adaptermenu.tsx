@@ -175,22 +175,19 @@ export default function AdapterMenu({ id }: AdapterMenuProps) {
                         </option>
                     ))}
                 </select>
-            </div>
-            
-            {/* Sync button only on adapter1 */}
-            {id === "adapter1" && (
-                <div className="flex flex-row items-center justify-center">
-                    <label className="flex items-center space-x-1 text-xs">
+                {/* Sync button only on adapter1 */}
+                {id === "adapter1" && (
+                    <label className="flex items-center space-x-1 text-xs whitespace-nowrap flex-shrink-0">
                         <input
                             type="checkbox"
                             checked={syncNetworks}
                             onChange={(e) => handleSyncToggle(e.target.checked)}
                             className="rounded"
                         />
-                        <span className="text-gray-700">Sync adapters</span>
+                        <span className="text-gray-700">Sync</span>
                     </label>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
