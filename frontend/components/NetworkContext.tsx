@@ -8,6 +8,7 @@ interface NetworkResult {
   channel: string;
   signal: string;
   encryption: string;
+  last_seen?: number;
 }
 
 interface AdapterNetworkState {

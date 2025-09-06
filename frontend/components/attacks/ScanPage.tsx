@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNetworkContext } from "@/components/NetworkContext";
 import { useAdapterContext } from "@/components/AdapterContext";
 
 export default function ScanPage() {
-  const [duration, setDuration] = useState(30);
   const [showHidden, setShowHidden] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   
   const { scannedNetworks, setScannedNetworks } = useNetworkContext();
   const { selectedAdapters } = useAdapterContext();
+  
+  // Refs for cleanup
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Get the first available adapter for scanning
   const getSelectedAdapter = () => {
@@ -18,7 +32,67 @@ export default function ScanPage() {
     return adapters.length > 0 ? adapters[0] : null;
   };
 
-  const handleScan = async () => {
+  // Check current scan status on component mount
+  useEffect(() => {
+    const checkScanStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/scan/status");
+        const data = await response.json();
+        
+        if (data.status === "success" && data.total_scanning > 0) {
+          setIsScanning(true);
+          startPolling();
+        }
+      } catch (error) {
+        console.error("Error checking scan status:", error);
+      }
+    };
+    
+    checkScanStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startPolling = () => {
+    // Clear any existing interval
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    // Start polling for results every 3 seconds
+    pollIntervalRef.current = setInterval(async () => {
+      if (!isMountedRef.current) return;
+      
+      const selectedAdapter = getSelectedAdapter();
+      if (!selectedAdapter) return;
+
+      try {
+        const response = await fetch(`http://localhost:8000/api/scan/results/${selectedAdapter}`);
+        const data = await response.json();
+        
+        if (!isMountedRef.current) return;
+        
+        if (data.status === "success") {
+          setScannedNetworks(data.networks || []);
+          
+          // If scan stopped, update state
+          if (!data.scanning) {
+            setIsScanning(false);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error polling scan results:", error);
+        if (isMountedRef.current) {
+          setScanError("Failed to get scan results");
+        }
+      }
+    }, 3000);
+  };
+
+  const handleScanToggle = async () => {
     const selectedAdapter = getSelectedAdapter();
     
     if (!selectedAdapter) {
@@ -26,34 +100,65 @@ export default function ScanPage() {
       return;
     }
 
-    setIsScanning(true);
-    setScannedNetworks([]);
+    setScanError(null);
 
-    try {
-      const response = await fetch("http://localhost:8000/api/scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          adapter: selectedAdapter,
-          duration: duration
-        }),
-      });
+    if (isScanning) {
+      // Stop scanning
+      try {
+        const response = await fetch("http://localhost:8000/api/scan/stop", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            adapter: selectedAdapter
+          }),
+        });
 
-      const data = await response.json();
-      console.log("Scan result:", data);
-      
-      if (data.status === "success") {
-        setScannedNetworks(data.networks || []);
-      } else {
-        alert(`Scan failed: ${data.message || "Unknown error"}`);
+        const data = await response.json();
+        console.log("Stop scan result:", data);
+        
+        if (data.status === "stopped" || data.status === "not_running") {
+          setIsScanning(false);
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        } else {
+          setScanError(`Failed to stop scan: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error stopping scan:", error);
+        setScanError("Failed to stop scan - check if backend is running");
       }
-    } catch (error) {
-      console.error("Error scanning networks:", error);
-      alert("Failed to scan networks - check if backend is running");
-    } finally {
-      setIsScanning(false);
+    } else {
+      // Start scanning
+      setScannedNetworks([]);
+      
+      try {
+        const response = await fetch("http://localhost:8000/api/scan/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            adapter: selectedAdapter
+          }),
+        });
+
+        const data = await response.json();
+        console.log("Start scan result:", data);
+        
+        if (data.status === "started" || data.status === "already_running") {
+          setIsScanning(true);
+          startPolling();
+        } else {
+          setScanError(`Failed to start scan: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error starting scan:", error);
+        setScanError("Failed to start scan - check if backend is running");
+      }
     }
   };
 
@@ -62,7 +167,7 @@ export default function ScanPage() {
       <h2 className="text-2xl font-bold mb-4 text-foreground">WiFi Network Scan</h2>
       <div className="bg-card p-4 rounded-lg border border-border shadow-custom">
         <p className="text-muted-foreground mb-4">
-          Scan for nearby WiFi networks and gather information about access points.
+          Scan for nearby WiFi networks and gather information about access points. Scanning runs continuously until stopped.
         </p>
         
         {/* Adapter Status */}
@@ -77,18 +182,15 @@ export default function ScanPage() {
           </div>
         </div>
         
-        <div className="space-y-2">
-          <div>
-            <label className="block text-sm font-medium text-foreground">Scan Duration (seconds):</label>
-            <input 
-              type="number" 
-              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary" 
-              value={duration}
-              onChange={(e) => setDuration(parseInt(e.target.value))}
-              placeholder="30" 
-            />
+        {/* Error Display */}
+        {scanError && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded text-destructive">
+            {scanError}
           </div>
-          <div className="flex items-center">
+        )}
+        
+        <div className="space-y-2">
+          <div className="flex items-center mb-4">
             <input 
               type="checkbox" 
               id="show-hidden" 
@@ -98,28 +200,34 @@ export default function ScanPage() {
             />
             <label htmlFor="show-hidden" className="text-sm text-foreground">Show hidden networks</label>
           </div>
+          
           <button 
-            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-secondary disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
-            onClick={handleScan}
-            disabled={isScanning || !getSelectedAdapter()}
+            className={`px-4 py-2 rounded font-medium transition-all shadow-custom ${
+              isScanning 
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" 
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            } disabled:bg-muted disabled:text-muted-foreground`}
+            onClick={handleScanToggle}
+            disabled={!getSelectedAdapter()}
           >
-            {isScanning ? "Scanning..." : "Start Scan"}
+            {isScanning ? "Stop Scan" : "Start Scan"}
           </button>
         </div>
 
-        {/* Simple Scan Status */}
+        {/* Real-time Scan Status */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-2 text-foreground">Scan Status</h3>
           <div className="bg-muted border border-border rounded p-3 text-sm">
             {isScanning ? (
-              <div className="text-primary">
-                ⏳ Scanning in progress... ({scannedNetworks.length} networks found so far)
+              <div className="text-primary flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                🔄 Scanning in progress... ({scannedNetworks.length} networks found)
               </div>
             ) : (
               <div className="text-muted-foreground">
                 {scannedNetworks.length > 0 
-                  ? `✅ Scan complete - Found ${scannedNetworks.length} networks. Select networks in the adapter menus above.`
-                  : "ℹ️ No scan results yet. Click 'Start Scan' to begin discovering networks."
+                  ? `✅ Scan stopped - Found ${scannedNetworks.length} networks total.`
+                  : "ℹ️ Ready to scan. Click 'Start Scan' to begin discovering networks in real-time."
                 }
               </div>
             )}
@@ -129,26 +237,38 @@ export default function ScanPage() {
         {/* Scan Results Display */}
         {scannedNetworks.length > 0 && (
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2 text-foreground">Discovered Networks</h3>
-            <div className="bg-muted border border-border rounded p-3 text-sm">
+            <h3 className="text-lg font-semibold mb-2 text-foreground">
+              Discovered Networks ({scannedNetworks.length})
+              {isScanning && <span className="text-sm font-normal text-muted-foreground ml-2">(updating live)</span>}
+            </h3>
+            <div className="bg-muted border border-border rounded p-3 text-sm max-h-96 overflow-y-auto">
               <div className="space-y-2">
-                <div className="font-bold grid grid-cols-5 gap-2 pb-2 border-b border-border text-foreground">
+                <div className="font-bold grid grid-cols-6 gap-2 pb-2 border-b border-border text-foreground">
                   <span>BSSID</span>
                   <span>SSID</span>
                   <span>Channel</span>
                   <span>Signal</span>
                   <span>Encryption</span>
+                  <span>Last Seen</span>
                 </div>
-                {scannedNetworks.map((network, index) => (
+                {scannedNetworks
+                  .filter(network => showHidden || network.ssid !== "Hidden")
+                  .sort((a, b) => parseInt(b.signal || "0") - parseInt(a.signal || "0"))
+                  .map((network, index) => (
                   <div 
-                    key={index} 
-                    className="grid grid-cols-5 gap-2 font-mono text-xs p-1 rounded hover:bg-card hover:shadow-custom transition-all text-foreground"
+                    key={`${network.bssid}-${index}`}
+                    className="grid grid-cols-6 gap-2 font-mono text-xs p-1 rounded hover:bg-card hover:shadow-custom transition-all text-foreground"
                   >
-                    <span>{network.bssid}</span>
-                    <span>{network.ssid}</span>
+                    <span className="truncate">{network.bssid}</span>
+                    <span className="truncate font-semibold">{network.ssid || "Hidden"}</span>
                     <span>{network.channel}</span>
-                    <span>{network.signal}</span>
+                    <span className={`${parseInt(network.signal || "0") > -50 ? "text-green-600" : parseInt(network.signal || "0") > -70 ? "text-yellow-600" : "text-red-600"}`}>
+                      {network.signal} dBm
+                    </span>
                     <span>{network.encryption}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {network.last_seen ? new Date(network.last_seen * 1000).toLocaleTimeString() : "-"}
+                    </span>
                   </div>
                 ))}
               </div>

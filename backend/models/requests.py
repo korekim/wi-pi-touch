@@ -9,6 +9,9 @@ class NetworkScanRequest(BaseModel):
     adapter: str
     duration: int = 30
 
+class ScanControlRequest(BaseModel):
+    adapter: str
+
 class DeauthRequest(BaseModel):
     adapter: str
     target_bssid: str
