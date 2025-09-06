@@ -119,17 +119,17 @@ class ScanManager:
                         print(f"  -> Skipping ANSI line")
                     continue
                     
-                # Detect section headers
-                if 'BSSID' in line and 'PWR' in line and 'Beacons' in line:
+                # Detect section headers - be more flexible with header detection
+                if 'BSSID' in line and ('PWR' in line or 'Beacons' in line):
                     parsing_mode = 'networks'
                     print(f"Found networks header at line {line_count}: {line}")
                     continue
-                elif 'BSSID' in line and 'Station MAC' in line:
+                elif ('Station MAC' in line) or ('BSSID' in line and 'Station' in line):
                     parsing_mode = 'stations'
                     print(f"Found stations header at line {line_count}: {line}")
                     continue
-                elif 'CH' in line and 'Elapsed' in line:
-                    # This is the header line, skip it
+                elif 'CH' in line and ('Elapsed' in line or 'Time' in line):
+                    # This is the status line, skip it
                     print(f"Found status header at line {line_count}: {line}")
                     continue
                     
@@ -161,58 +161,64 @@ class ScanManager:
     def _parse_network_line(self, line):
         """Parse a single network line from airodump-ng output"""
         try:
-            # Split by multiple spaces to handle formatting
-            parts = [part.strip() for part in line.split() if part.strip()]
+            # Split by whitespace to handle formatting
+            parts = line.split()
             
             print(f"    Network line parts ({len(parts)}): {parts}")
             
-            if len(parts) < 6:
+            if len(parts) < 7:  # Need at least BSSID, PWR, Beacons, Data, #/s, CH, MB
                 print(f"    -> Too few parts, skipping")
                 return None
                 
-            # Basic validation - first part should be a MAC address
+            # Parse according to airodump-ng format:
+            # BSSID PWR Beacons Data #/s CH MB ENC CIPHER AUTH ESSID
             bssid = parts[0]
+            power = parts[1] 
+            beacons = parts[2]
+            data = parts[3]
+            rate = parts[4]  # #/s
+            channel = parts[5]
+            mb = parts[6]
+            
+            # Basic validation - first part should be a MAC address
             if ':' not in bssid or len(bssid) < 17:
                 print(f"    -> Invalid BSSID format: {bssid}")
                 return None
                 
-            # Extract fields (airodump-ng format varies, so we need to be flexible)
-            power = parts[1] if len(parts) > 1 else ""
-            beacons = parts[2] if len(parts) > 2 else ""
-            data = parts[3] if len(parts) > 3 else ""
-            speed = parts[4] if len(parts) > 4 else ""
-            channel = parts[5] if len(parts) > 5 else ""
-            
             print(f"    -> Basic fields: BSSID={bssid}, PWR={power}, CH={channel}")
             
-            # ESSID is usually the last part(s), might contain spaces
-            essid = ""
-            if len(parts) > 6:
-                # Look for encryption info (WPA, WEP, OPN, etc.)
-                encryption_parts = []
-                essid_parts = []
-                found_encryption = False
+            # ENC, CIPHER, AUTH, and ESSID are in the remaining parts
+            encryption_info = []
+            essid_parts = []
+            
+            if len(parts) > 7:
+                # Look for encryption info and ESSID
+                remaining_parts = parts[7:]
                 
-                for i in range(6, len(parts)):
-                    part = parts[i]
-                    if any(enc in part.upper() for enc in ['WPA', 'WEP', 'OPN', 'WPS']):
-                        encryption_parts.append(part)
-                        found_encryption = True
-                    elif not found_encryption:
-                        # Still looking for encryption, this might be channel/speed info
-                        if part.isdigit() and not channel:
-                            channel = part
+                # Common encryption indicators
+                enc_indicators = ['WPA', 'WEP', 'OPN', 'WPS', 'CCMP', 'TKIP', 'PSK', 'MGT']
+                
+                essid_started = False
+                for part in remaining_parts:
+                    # If we haven't found ESSID yet and this looks like encryption
+                    if not essid_started and any(enc in part.upper() for enc in enc_indicators):
+                        encryption_info.append(part)
                     else:
-                        # This should be ESSID
+                        # This should be part of ESSID
+                        essid_started = True
                         essid_parts.append(part)
-                        
-                essid = ' '.join(essid_parts).strip()
-                encryption = ' '.join(encryption_parts).strip()
-            else:
-                encryption = ""
                 
+                # If no clear ESSID found, last parts might be ESSID
+                if not essid_parts and len(remaining_parts) > 3:
+                    # Assume last part(s) are ESSID
+                    encryption_info = remaining_parts[:-1]
+                    essid_parts = [remaining_parts[-1]]
+                
+            essid = ' '.join(essid_parts).strip() if essid_parts else ""
+            encryption = ' '.join(encryption_info).strip() if encryption_info else "Unknown"
+            
             # Clean up values
-            if not essid:
+            if not essid or essid == "":
                 essid = "Hidden"
                 
             print(f"    -> Final: ESSID='{essid}', ENC='{encryption}'")
