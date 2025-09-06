@@ -62,87 +62,159 @@ class ScanManager:
         return self.networks.copy()
         
     def _scan_worker(self):
-        """Background worker that runs airodump-ng and parses results"""
+        """Background worker that runs airodump-ng and parses real-time output"""
         try:
-            # Start airodump-ng process
-            cmd = f"sudo airodump-ng {self.adapter} -w {self.output_file} --output-format csv"
-            print(f"Starting background scan: {cmd}")
+            # Start airodump-ng process with real-time output (no file writing)
+            cmd = f"sudo airodump-ng {self.adapter} --channel 1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48,149,153,157,161,165"
+            print(f"Starting background scan with real-time output: {cmd}")
             
             self.process = subprocess.Popen(
                 cmd,
                 shell=True,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=subprocess.STDOUT,  # Combine stderr with stdout
+                universal_newlines=True,
+                bufsize=1,  # Line buffered
                 preexec_fn=os.setsid  # Create new process group
             )
             
-            # Monitor and parse results periodically
-            while not self.stop_event.is_set():
-                time.sleep(3)  # Check every 3 seconds
-                self._parse_current_results()
+            # Parse real-time output
+            self._parse_realtime_output()
                 
         except Exception as e:
             print(f"Error in scan worker: {e}")
+            import traceback
+            traceback.print_exc()
         finally:
             self.stop_scan()
             
-    def _parse_current_results(self):
-        """Parse the current CSV file and update networks"""
-        csv_file = f"{self.output_file}-01.csv"
+    def _parse_realtime_output(self):
+        """Parse real-time airodump-ng output"""
+        networks_dict = {}
+        current_networks = []
+        parsing_mode = None
         
-        if not os.path.exists(csv_file):
-            return
-            
         try:
-            with open(csv_file, 'r') as f:
-                lines = f.readlines()
-                
-            networks = []
-            parsing_stations = False
-            
-            for line in lines:
+            for line in iter(self.process.stdout.readline, ''):
+                if self.stop_event.is_set():
+                    break
+                    
                 line = line.strip()
                 if not line:
                     continue
                     
-                # Skip headers and station data
-                if line.startswith('BSSID'):
+                # Skip ANSI escape sequences and clear screen commands
+                if '\x1b' in line or line.startswith('\033'):
                     continue
-                if line.startswith('Station MAC'):
-                    parsing_stations = True
-                    continue
-                if parsing_stations:
-                    break
                     
-                # Parse network entries
-                if ',' in line:
-                    parts = line.split(',')
-                    if len(parts) >= 14:
-                        bssid = parts[0].strip()
-                        if bssid and ':' in bssid:  # Valid MAC address
-                            networks.append({
-                                "bssid": bssid,
-                                "ssid": parts[13].strip() or "Hidden",
-                                "channel": parts[3].strip(),
-                                "signal": parts[8].strip(),
-                                "encryption": parts[5].strip(),
-                                "last_seen": int(time.time())
-                            })
+                # Detect section headers
+                if 'BSSID' in line and 'PWR' in line and 'Beacons' in line:
+                    parsing_mode = 'networks'
+                    continue
+                elif 'BSSID' in line and 'Station MAC' in line:
+                    parsing_mode = 'stations'
+                    continue
+                elif 'CH' in line and 'Elapsed' in line:
+                    # This is the header line, skip it
+                    continue
+                    
+                # Parse network data
+                if parsing_mode == 'networks':
+                    network = self._parse_network_line(line)
+                    if network:
+                        networks_dict[network['bssid']] = network
+                        
+                elif parsing_mode == 'stations':
+                    # We can ignore station data for now
+                    continue
+                    
+                # Update our networks list periodically
+                if len(networks_dict) != len(current_networks):
+                    current_networks = list(networks_dict.values())
+                    self.networks = current_networks.copy()
+                    print(f"Real-time scan update: {len(self.networks)} networks found")
+                    
+        except Exception as e:
+            print(f"Error parsing real-time output: {e}")
+            import traceback
+            traceback.print_exc()
             
-            # Update networks (remove duplicates, keep most recent)
-            network_map = {}
-            for network in networks:
-                network_map[network["bssid"]] = network
+    def _parse_network_line(self, line):
+        """Parse a single network line from airodump-ng output"""
+        try:
+            # Split by multiple spaces to handle formatting
+            parts = [part.strip() for part in line.split() if part.strip()]
+            
+            if len(parts) < 6:
+                return None
                 
-            self.networks = list(network_map.values())
-            print(f"Updated scan results: {len(self.networks)} networks")
+            # Basic validation - first part should be a MAC address
+            bssid = parts[0]
+            if ':' not in bssid or len(bssid) < 17:
+                return None
+                
+            # Extract fields (airodump-ng format varies, so we need to be flexible)
+            power = parts[1] if len(parts) > 1 else ""
+            beacons = parts[2] if len(parts) > 2 else ""
+            data = parts[3] if len(parts) > 3 else ""
+            speed = parts[4] if len(parts) > 4 else ""
+            channel = parts[5] if len(parts) > 5 else ""
+            
+            # ESSID is usually the last part(s), might contain spaces
+            essid = ""
+            if len(parts) > 6:
+                # Look for encryption info (WPA, WEP, OPN, etc.)
+                encryption_parts = []
+                essid_parts = []
+                found_encryption = False
+                
+                for i in range(6, len(parts)):
+                    part = parts[i]
+                    if any(enc in part.upper() for enc in ['WPA', 'WEP', 'OPN', 'WPS']):
+                        encryption_parts.append(part)
+                        found_encryption = True
+                    elif not found_encryption:
+                        # Still looking for encryption, this might be channel/speed info
+                        if part.isdigit() and not channel:
+                            channel = part
+                    else:
+                        # This should be ESSID
+                        essid_parts.append(part)
+                        
+                essid = ' '.join(essid_parts).strip()
+                encryption = ' '.join(encryption_parts).strip()
+            else:
+                encryption = ""
+                
+            # Clean up values
+            if not essid:
+                essid = "Hidden"
+                
+            # Filter out obviously invalid entries
+            try:
+                power_val = int(power) if power and power.lstrip('-').isdigit() else -100
+                if power_val < -100:  # Too weak, probably noise
+                    return None
+            except ValueError:
+                pass
+                
+            return {
+                "bssid": bssid,
+                "ssid": essid,
+                "channel": channel,
+                "signal": power,
+                "encryption": encryption or "Unknown",
+                "last_seen": int(time.time())
+            }
             
         except Exception as e:
-            print(f"Error parsing scan results: {e}")
+            print(f"Error parsing network line '{line}': {e}")
+            return None
             
     def _cleanup_files(self):
-        """Clean up temporary files"""
+        """Clean up temporary files (not needed for real-time parsing, but kept for compatibility)"""
         try:
+            # Clean up any leftover files from previous CSV-based scans
             for i in range(1, 10):
                 csv_file = f"{self.output_file}-{i:02d}.csv"
                 cap_file = f"{self.output_file}-{i:02d}.cap"
