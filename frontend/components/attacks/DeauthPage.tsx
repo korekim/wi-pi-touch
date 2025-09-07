@@ -108,6 +108,11 @@ export default function DeauthPage() {
     if (isAttacking) {
       // Stop attack
       try {
+        // Get channel information for consistency
+        const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+        const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+        const channel = networkState?.selectedNetwork?.channel;
+        
         const response = await fetch("http://localhost:8000/api/deauth/stop", {
           method: "POST",
           headers: {
@@ -116,7 +121,8 @@ export default function DeauthPage() {
           body: JSON.stringify({
             adapter: selectedAdapter,
             target_bssid: targetNetwork,
-            target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null
+            target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null,
+            channel: channel || null
           }),
         });
 
@@ -140,10 +146,16 @@ export default function DeauthPage() {
     } else {
       // Start attack
       try {
+        // Get channel information from the selected network
+        const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+        const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+        const channel = networkState?.selectedNetwork?.channel;
+        
         const requestBody = {
           adapter: selectedAdapter,
           target_bssid: targetNetwork,
-          target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null
+          target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null,
+          channel: channel || null
         };
         console.log("Sending deauth start request:", requestBody);
         
@@ -252,6 +264,9 @@ export default function DeauthPage() {
               <div className="p-2 bg-accent/20 border border-accent rounded text-sm">
                 <strong className="text-foreground">Using network from {selectedAdapter}:</strong> 
                 <span className="text-accent"> {networkState.selectedNetwork.ssid} ({networkState.selectedNetwork.bssid})</span>
+                <br />
+                <strong className="text-foreground">Channel:</strong> 
+                <span className="text-accent"> {networkState.selectedNetwork.channel}</span>
               </div>
             ) : null;
           })()}

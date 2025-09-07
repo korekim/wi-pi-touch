@@ -16,6 +16,7 @@ class DeauthRequest(BaseModel):
     adapter: str
     target_bssid: str
     target_mac: Optional[str] = None
+    channel: Optional[str] = None
 
 class HandshakeRequest(BaseModel):
     adapter: str

