@@ -1,20 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNetworkContext } from "@/components/NetworkContext";
 import { useAdapterContext } from "@/components/AdapterContext";
+
+interface DeauthStatus {
+  running: boolean;
+  packets_sent: number;
+  duration: number;
+  target_bssid: string;
+  target_mac: string | null;
+}
 
 export default function DeauthPage() {
   const [targetNetwork, setTargetNetwork] = useState("");
   const [targetDevice, setTargetDevice] = useState("");
   const [selectedAdapter, setSelectedAdapter] = useState<string>("");
   const [isAttacking, setIsAttacking] = useState(false);
+  const [attackKey, setAttackKey] = useState<string | null>(null);
+  const [attackStatus, setAttackStatus] = useState<DeauthStatus | null>(null);
+  const [attackError, setAttackError] = useState<string | null>(null);
   
   const { adapterNetworks } = useNetworkContext();
   const { } = useAdapterContext();
 
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Get available adapters from the network context
   const availableAdapters = Object.keys(adapterNetworks);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Auto-populate target network when an adapter's network is selected
   useEffect(() => {
@@ -25,6 +47,41 @@ export default function DeauthPage() {
       }
     }
   }, [selectedAdapter, adapterNetworks]);
+
+  const startStatusPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/deauth/status", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+        console.log("Attack status:", data);
+        
+        if (data.running !== undefined) {
+          setAttackStatus(data);
+          
+          // If attack stopped, clear polling
+          if (!data.running && isAttacking) {
+            setIsAttacking(false);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error polling attack status:", error);
+      }
+    }, 2000);
+  };
 
   const handleDeauthAttack = async () => {
     if (!selectedAdapter) {
@@ -37,58 +94,105 @@ export default function DeauthPage() {
       return;
     }
 
-    // Check if another adapter is already using this network for an attack
-    const conflictingAdapter = Object.entries(adapterNetworks).find(
-      ([adapter, state]) => 
-        adapter !== selectedAdapter && 
-        state.currentAttackType && 
-        state.selectedNetwork?.bssid === targetNetwork
-    );
+    setAttackError(null);
 
-    if (conflictingAdapter) {
-      alert(`Network ${targetNetwork} is already being attacked by ${conflictingAdapter[0]}. Please choose a different network or stop the other attack.`);
-      return;
-    }
+    if (isAttacking) {
+      // Stop attack
+      try {
+        const response = await fetch("http://localhost:8000/api/deauth/stop", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            adapter: selectedAdapter,
+            target_bssid: targetNetwork,
+            target_mac: targetDevice || null
+          }),
+        });
 
-    setIsAttacking(true);
-
-    try {
-      const requestBody: { 
-        adapter: string; 
-        target_bssid: string; 
-        target_mac?: string; 
-      } = {
-        adapter: "wlan0", // You might want to get this from context
-        target_bssid: targetNetwork,
-      };
-      
-      // Only include target_mac if it's not empty
-      if (targetDevice && targetDevice.trim() !== "") {
-        requestBody.target_mac = targetDevice.trim();
+        const data = await response.json();
+        console.log("Stop deauth result:", data);
+        
+        if (data.status === "stopped" || data.status === "not_running") {
+          setIsAttacking(false);
+          setAttackStatus(null);
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        } else {
+          setAttackError(`Failed to stop attack: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error stopping deauth attack:", error);
+        setAttackError("Failed to stop attack - check if backend is running");
       }
+    } else {
+      // Start attack
+      try {
+        const response = await fetch("http://localhost:8000/api/deauth/start", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            adapter: selectedAdapter,
+            target_bssid: targetNetwork,
+            target_mac: targetDevice || null
+          }),
+        });
 
-      const response = await fetch("http://localhost:8000/api/deauth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await response.json();
-      console.log("Deauth result:", data);
-      alert(`${data.message}\n\nOutput:\n${data.output}`);
-    } catch (error) {
-      console.error("Error starting deauth attack:", error);
-      alert("Failed to start deauth attack");
-    } finally {
-      setIsAttacking(false);
+        const data = await response.json();
+        console.log("Start deauth result:", data);
+        
+        if (data.status === "started" || data.status === "already_running") {
+          setIsAttacking(true);
+          setAttackKey(data.attack_key);
+          console.log("Deauth attack started successfully, beginning status polling...");
+          startStatusPolling();
+        } else {
+          setAttackError(`Failed to start attack: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Error starting deauth attack:", error);
+        setAttackError("Failed to start attack - check if backend is running");
+      }
     }
   };
 
   return (
     <div className="p-6 bg-background">
       <h2 className="text-2xl font-bold mb-4 text-foreground">Deauthentication Attack</h2>
+
+      {/* Error Display */}
+      {attackError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <strong>Error:</strong> {attackError}
+        </div>
+      )}
+
+      {/* Attack Status Display */}
+      {attackStatus && (
+        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <strong>Status:</strong> {attackStatus.running ? "Running" : "Stopped"}
+            </div>
+            <div>
+              <strong>Packets Sent:</strong> {attackStatus.packets_sent}
+            </div>
+            <div>
+              <strong>Duration:</strong> {attackStatus.duration}s
+            </div>
+            <div>
+              <strong>Target:</strong> {attackStatus.target_bssid}
+              {attackStatus.target_mac && ` -> ${attackStatus.target_mac}`}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-card p-4 rounded-lg border border-border shadow-custom">
         <p className="text-muted-foreground mb-4">
           Deauthentication attacks disconnect devices from WiFi networks by sending spoofed deauth frames.
@@ -142,11 +246,15 @@ export default function DeauthPage() {
             />
           </div>
           <button 
-            className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/80 disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
+            className={`px-4 py-2 rounded disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom ${
+              isAttacking 
+                ? "bg-orange-500 text-white hover:bg-orange-600" 
+                : "bg-destructive text-destructive-foreground hover:bg-destructive/80"
+            }`}
             onClick={handleDeauthAttack}
-            disabled={isAttacking}
+            disabled={!selectedAdapter || !targetNetwork}
           >
-            {isAttacking ? "Attacking..." : "Start Deauth Attack"}
+            {isAttacking ? "Stop Attack" : "Start Deauth Attack"}
           </button>
         </div>
       </div>
