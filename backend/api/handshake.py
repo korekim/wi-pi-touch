@@ -15,7 +15,16 @@ router = APIRouter()
 handshake_processes: Dict[str, "HandshakeManager"] = {}
 
 # Create handshakes directory in user's Documents folder
-HANDSHAKES_DIR = Path.home() / "Documents" / "handshakes"
+# When running with sudo, use the actual user's home directory, not root's
+import os
+if os.environ.get('SUDO_USER'):
+    # Running with sudo, get the real user's home directory
+    user_home = Path(f"/home/{os.environ['SUDO_USER']}")
+else:
+    # Running normally
+    user_home = Path.home()
+
+HANDSHAKES_DIR = user_home / "Documents" / "handshakes"
 HANDSHAKES_DIR.mkdir(parents=True, exist_ok=True)
 
 class HandshakeManager:
@@ -64,11 +73,24 @@ class HandshakeManager:
             self.thread.daemon = True
             self.thread.start()
             
-            # Give it a moment to start and check if thread is alive
-            time.sleep(1)
+            # Wait a bit longer and check if process actually started successfully
+            time.sleep(2)
             
-            # Return True if thread is running (process will be created by worker)
-            return self.thread.is_alive()
+            # Check if thread is still alive and process started
+            if not self.thread.is_alive():
+                print("Thread died immediately - capture failed")
+                return False
+                
+            if self.process is None:
+                print("Process was not created - capture failed")
+                return False
+                
+            if self.process.poll() is not None:
+                print(f"Process exited immediately with code: {self.process.poll()}")
+                return False
+            
+            print(f"Capture started successfully - Thread alive: {self.thread.is_alive()}, Process PID: {self.process.pid if self.process else 'None'}")
+            return True
             
         except Exception as e:
             print(f"Error starting handshake capture: {e}")
@@ -167,8 +189,24 @@ class HandshakeManager:
             
             # Monitor output and look for handshake
             start_time = time.time()
+            line_count = 0
             for line in iter(self.process.stdout.readline, ''):
                 if self.stop_event.is_set():
+                    break
+                
+                line_count += 1
+                print(f"Handshake capture output: {line.strip()}")
+                
+                # Check for common error conditions
+                if any(error_phrase in line.lower() for error_phrase in [
+                    "no such file or directory",
+                    "permission denied", 
+                    "no such device",
+                    "interface doesn't support monitor mode",
+                    "device busy",
+                    "invalid argument"
+                ]):
+                    print(f"Error detected in airodump-ng output: {line.strip()}")
                     break
                     
                 # Check for duration timeout
@@ -177,12 +215,14 @@ class HandshakeManager:
                     break
                     
                 # Parse airodump-ng output
-                if "WPA handshake" in line or "handshake" in line.lower():
+                line_lower = line.lower()
+                if ("wpa handshake" in line_lower and ("captured" in line_lower or "found" in line_lower)) or \
+                   ("handshake" in line_lower and "wpa" in line_lower and ("detected" in line_lower or "saved" in line_lower)):
                     self.handshake_captured = True
                     print(f"Handshake captured! {line.strip()}")
                     # Stop capture automatically when handshake is found
                     break
-                elif "packets" in line.lower() or "data" in line.lower():
+                elif "packets" in line_lower or "data" in line_lower:
                     # Try to extract packet count (basic parsing)
                     try:
                         import re
@@ -191,8 +231,10 @@ class HandshakeManager:
                             self.packets_captured = max(self.packets_captured, int(numbers[-1]))
                     except:
                         pass
-                    
-                print(f"Handshake capture output: {line.strip()}")
+            
+            # Check if process exited too quickly (likely an error)
+            if line_count < 5 and (time.time() - start_time) < 5:
+                print(f"Process exited too quickly after {line_count} lines in {time.time() - start_time:.1f}s - likely an error")
                 
         except Exception as e:
             print(f"Error in handshake capture worker: {e}")
