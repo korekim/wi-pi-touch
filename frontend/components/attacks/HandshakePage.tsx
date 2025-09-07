@@ -92,6 +92,13 @@ export default function HandshakePage() {
   };
 
   const handleHandshakeCapture = async () => {
+    console.log("🔵 HandshakeCapture: Button clicked");
+    
+    if (isCapturing) {
+      console.log("🟡 HandshakeCapture: Already capturing, ignoring click");
+      return;
+    }
+    
     if (!selectedAdapter) {
       alert("Please select an adapter for the attack");
       return;
@@ -115,6 +122,7 @@ export default function HandshakePage() {
       return;
     }
 
+    console.log("🔵 HandshakeCapture: Setting isCapturing to true");
     setIsCapturing(true);
 
     try {
@@ -124,35 +132,43 @@ export default function HandshakePage() {
       const selectedNetworkInfo = networkState?.selectedNetwork;
       const channel = selectedNetworkInfo?.channel || null;
 
+      const requestBody = {
+        adapter: selectedAdapter,
+        target_bssid: targetNetwork,
+        duration: 0, // 0 means run indefinitely
+        channel: channel
+      };
+
+      console.log("🔵 HandshakeCapture: Sending request with body:", requestBody);
+
       const response = await fetch("http://localhost:8000/api/handshake/start", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          adapter: selectedAdapter,
-          target_bssid: targetNetwork,
-          duration: 0, // 0 means run indefinitely
-          channel: channel
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log("🔵 HandshakeCapture: Received response:", response.status, response.statusText);
       const data = await response.json();
-      console.log("Handshake capture result:", data);
+      console.log("🔵 HandshakeCapture: Response data:", data);
       
       if (data.status === "started") {
+        console.log("🟢 HandshakeCapture: Started successfully");
         setCaptureKey(data.capture_key);
         setCaptureError(null);
         startStatusPolling();
         alert(`Handshake capture started for ${data.target_bssid}\nWill run until handshake captured or manually stopped\nOutput file: ${data.output_file}`);
       } else if (data.status === "already_running") {
+        console.log("🟡 HandshakeCapture: Already running");
         alert(data.message);
         setIsCapturing(false);
       } else {
+        console.log("🔴 HandshakeCapture: Unexpected status:", data.status);
         throw new Error(data.message || "Failed to start handshake capture");
       }
     } catch (error) {
-      console.error("Error starting handshake capture:", error);
+      console.error("🔴 HandshakeCapture: Error occurred:", error);
       setCaptureError(error instanceof Error ? error.message : "Failed to start handshake capture");
       alert("Failed to start handshake capture: " + (error instanceof Error ? error.message : "Unknown error"));
       setIsCapturing(false);

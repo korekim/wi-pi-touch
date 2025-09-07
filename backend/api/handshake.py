@@ -205,39 +205,51 @@ class HandshakeManager:
 @router.post("/handshake/start")
 def start_handshake_capture(request: HandshakeRequest):
     """Start handshake capture"""
-    print(f"DEBUG: Received handshake request - adapter: '{request.adapter}', target_bssid: '{request.target_bssid}', duration: {request.duration}")
+    import uuid
+    request_id = str(uuid.uuid4())[:8]
+    print(f"[{request_id}] DEBUG: Received handshake request - adapter: '{request.adapter}', target_bssid: '{request.target_bssid}', duration: {request.duration}")
     
     if USE_REAL_TOOLS:
         try:
+            print(f"[{request_id}] Checking adapter monitor mode...")
             # Check if adapter is in monitor mode
             check_cmd = f"sudo iwconfig {request.adapter}"
-            print(f"DEBUG: Running command: {check_cmd}")
+            print(f"[{request_id}] DEBUG: Running command: {check_cmd}")
             check_result = subprocess.run(check_cmd, shell=True, capture_output=True, text=True)
-            print(f"DEBUG: iwconfig output: {check_result.stdout}")
+            print(f"[{request_id}] DEBUG: iwconfig output: {check_result.stdout}")
             
             if "Mode:Monitor" not in check_result.stdout:
+                print(f"[{request_id}] ERROR: Adapter not in monitor mode")
                 raise HTTPException(status_code=400, detail=f"Interface {request.adapter} must be in monitor mode")
             
             # Create unique key for this capture
             capture_key = f"{request.adapter}_{request.target_bssid}"
+            print(f"[{request_id}] Using capture key: {capture_key}")
             
             # Check if already capturing this target
             if capture_key in handshake_processes:
                 manager = handshake_processes[capture_key]
                 if manager.is_running():
+                    print(f"[{request_id}] Already running capture for {capture_key}")
                     return {
                         "status": "already_running",
                         "message": f"Handshake capture already running for {request.target_bssid}",
                         "capture_key": capture_key
                     }
+                else:
+                    print(f"[{request_id}] Removing old stopped capture for {capture_key}")
+                    del handshake_processes[capture_key]
             
             # Start new capture
             # Try to determine channel if not provided
             channel = getattr(request, 'channel', None)
+            print(f"[{request_id}] Creating HandshakeManager with channel: {channel}")
             manager = HandshakeManager(request.adapter, request.target_bssid, channel, request.duration)
             
+            print(f"[{request_id}] Starting capture...")
             if manager.start_capture():
                 handshake_processes[capture_key] = manager
+                print(f"[{request_id}] Capture started successfully")
                 
                 return {
                     "status": "started",
@@ -249,11 +261,15 @@ def start_handshake_capture(request: HandshakeRequest):
                     "output_file": str(manager.output_file)
                 }
             else:
+                print(f"[{request_id}] Failed to start capture")
                 raise HTTPException(status_code=500, detail="Failed to start handshake capture")
                 
         except HTTPException:
             raise
         except Exception as e:
+            print(f"[{request_id}] Exception: {str(e)}")
+            import traceback
+            traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Failed to start handshake capture: {str(e)}")
     else:
         # Mock response for development
