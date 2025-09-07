@@ -88,11 +88,30 @@ class HandshakeManager:
                     
                 self.process = None
                 
-            if self.thread and self.thread.is_alive():
+            # Only join thread if we're not calling from within the thread itself
+            if self.thread and self.thread.is_alive() and threading.current_thread() != self.thread:
                 self.thread.join(timeout=5)
                 
         except Exception as e:
             print(f"Error stopping handshake capture: {e}")
+            
+    def _cleanup_process(self):
+        """Clean up process without thread join (called from within thread)"""
+        try:
+            self.stop_event.set()
+            
+            if self.process:
+                try:
+                    # Kill the process group
+                    os.killpg(os.getpgid(self.process.pid), 9)
+                except:
+                    # Fallback to killing just the process
+                    self.process.kill()
+                    
+                self.process = None
+                
+        except Exception as e:
+            print(f"Error cleaning up handshake capture process: {e}")
             
     def is_running(self):
         """Check if capture is running"""
@@ -173,7 +192,7 @@ class HandshakeManager:
         except Exception as e:
             print(f"Error in handshake capture worker: {e}")
         finally:
-            self.stop_capture()
+            self._cleanup_process()
 
 @router.post("/handshake/start")
 def start_handshake_capture(request: HandshakeRequest):
