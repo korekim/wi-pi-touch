@@ -22,12 +22,12 @@ export default function DeauthPage() {
   const [attackError, setAttackError] = useState<string | null>(null);
   
   const { adapterNetworks } = useNetworkContext();
-  const { } = useAdapterContext();
+  const { selectedAdapters } = useAdapterContext();
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get available adapters from the network context
-  const availableAdapters = Object.keys(adapterNetworks);
+  // Get only the selected adapters (not all available ones)
+  const availableAdapters = Object.values(selectedAdapters).filter(adapter => adapter !== "");
 
   // Cleanup polling on unmount
   useEffect(() => {
@@ -40,13 +40,15 @@ export default function DeauthPage() {
 
   // Auto-populate target network when an adapter's network is selected
   useEffect(() => {
-    if (selectedAdapter && adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork) {
-      const network = adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork;
-      if (network) {
-        setTargetNetwork(network.bssid);
+    if (selectedAdapter) {
+      const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+      const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+      
+      if (networkState?.selectedNetwork) {
+        setTargetNetwork(networkState.selectedNetwork.bssid);
       }
     }
-  }, [selectedAdapter, adapterNetworks]);
+  }, [selectedAdapter, selectedAdapters, adapterNetworks]);
 
   const startStatusPolling = () => {
     if (pollIntervalRef.current) {
@@ -225,23 +227,34 @@ export default function DeauthPage() {
               onChange={(e) => setSelectedAdapter(e.target.value)}
             >
               <option value="">-- Select an adapter --</option>
-              {availableAdapters.map((adapter) => (
-                <option key={adapter} value={adapter}>
-                  {adapter} {adapterNetworks[adapter as keyof typeof adapterNetworks]?.selectedNetwork 
-                    ? `(${adapterNetworks[adapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid})` 
-                    : '(no network selected)'
-                  }
-                </option>
-              ))}
+              {availableAdapters.map((adapter) => {
+                // Find which adapter menu ID this adapter belongs to
+                const adapterMenuId = Object.entries(selectedAdapters).find(([, selectedAdapter]) => selectedAdapter === adapter)?.[0];
+                const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+                
+                return (
+                  <option key={adapter} value={adapter}>
+                    {adapter} {networkState?.selectedNetwork 
+                      ? `(${networkState.selectedNetwork.ssid})` 
+                      : '(no network selected)'
+                    }
+                  </option>
+                );
+              })}
             </select>
           </div>
 
           {/* Network Status Display */}
-          {selectedAdapter && adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork && (
-            <div className="p-2 bg-accent/20 border border-accent rounded text-sm">
-              <strong className="text-foreground">Using network from {selectedAdapter}:</strong> <span className="text-accent">{adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.ssid} ({adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork?.bssid})</span>
-            </div>
-          )}
+          {selectedAdapter && (() => {
+            const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+            const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+            return networkState?.selectedNetwork ? (
+              <div className="p-2 bg-accent/20 border border-accent rounded text-sm">
+                <strong className="text-foreground">Using network from {selectedAdapter}:</strong> 
+                <span className="text-accent"> {networkState.selectedNetwork.ssid} ({networkState.selectedNetwork.bssid})</span>
+              </div>
+            ) : null;
+          })()}
 
           <div>
             <label className="block text-sm font-medium text-foreground">Target Network BSSID:</label>
