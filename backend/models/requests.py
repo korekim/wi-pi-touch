@@ -22,6 +22,7 @@ class HandshakeRequest(BaseModel):
     adapter: str
     target_bssid: str
     duration: int = 60
+    channel: Optional[str] = None
 
 class EvilTwinRequest(BaseModel):
     adapter: str

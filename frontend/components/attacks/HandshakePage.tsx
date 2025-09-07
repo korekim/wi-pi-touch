@@ -1,30 +1,98 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNetworkContext } from "@/components/NetworkContext";
 import { useAdapterContext } from "@/components/AdapterContext";
+
+interface HandshakeStatus {
+  running: boolean;
+  handshake_captured: boolean;
+  packets_captured: number;
+  elapsed_time: number;
+  remaining_time: number;
+  target_bssid: string;
+  channel: string | null;
+  output_file: string;
+}
 
 export default function HandshakePage() {
   const [targetNetwork, setTargetNetwork] = useState("");
   const [duration, setDuration] = useState(60);
   const [selectedAdapter, setSelectedAdapter] = useState<string>("");
   const [isCapturing, setIsCapturing] = useState(false);
+  const [captureKey, setCaptureKey] = useState<string | null>(null);
+  const [captureStatus, setCaptureStatus] = useState<HandshakeStatus | null>(null);
+  const [captureError, setCaptureError] = useState<string | null>(null);
   
   const { adapterNetworks } = useNetworkContext();
-  const { } = useAdapterContext();
+  const { selectedAdapters } = useAdapterContext();
 
-  // Get available adapters from the network context
-  const availableAdapters = Object.keys(adapterNetworks);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get only the selected adapters (not all available ones)
+  const availableAdapters = Object.values(selectedAdapters).filter(adapter => adapter !== "");
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Auto-populate target network when an adapter's network is selected
   useEffect(() => {
-    if (selectedAdapter && adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork) {
-      const network = adapterNetworks[selectedAdapter as keyof typeof adapterNetworks]?.selectedNetwork;
-      if (network) {
-        setTargetNetwork(network.bssid);
+    if (selectedAdapter) {
+      const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+      const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+      
+      if (networkState?.selectedNetwork) {
+        setTargetNetwork(networkState.selectedNetwork.bssid);
       }
     }
-  }, [selectedAdapter, adapterNetworks]);
+  }, [selectedAdapter, selectedAdapters, adapterNetworks]);
+
+  const startStatusPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/handshake/status", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+        console.log("Handshake capture status:", data);
+        
+        if (data.captures && captureKey && data.captures[captureKey]) {
+          const status = data.captures[captureKey];
+          setCaptureStatus(status);
+          
+          // If capture stopped or handshake captured, clear polling
+          if (!status.running || status.handshake_captured) {
+            setIsCapturing(false);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+            
+            if (status.handshake_captured) {
+              setCaptureError(null);
+              alert(`Handshake captured successfully! File: ${status.output_file}`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error polling handshake capture status:", error);
+      }
+    }, 2000);
+  };
 
   const handleHandshakeCapture = async () => {
     if (!selectedAdapter) {
