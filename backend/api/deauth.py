@@ -107,11 +107,16 @@ class DeauthManager:
 @router.post("/deauth/start")
 def start_deauth_attack(request: DeauthRequest):
     """Start continuous deauthentication attack"""
+    print(f"DEBUG: Received deauth request - adapter: '{request.adapter}', target_bssid: '{request.target_bssid}', target_mac: '{request.target_mac}'")
+    
     if USE_REAL_TOOLS:
         try:
             # Check if adapter is in monitor mode
             check_cmd = f"sudo iwconfig {request.adapter}"
+            print(f"DEBUG: Running command: {check_cmd}")
             check_result = subprocess.run(check_cmd, shell=True, capture_output=True, text=True)
+            print(f"DEBUG: iwconfig output: {check_result.stdout}")
+            print(f"DEBUG: iwconfig stderr: {check_result.stderr}")
             
             if "Mode:Monitor" not in check_result.stdout:
                 raise HTTPException(status_code=400, detail=f"Interface {request.adapter} must be in monitor mode")

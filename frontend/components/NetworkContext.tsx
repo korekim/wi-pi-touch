@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 interface NetworkResult {
   bssid: string;
@@ -41,10 +41,47 @@ const NetworkContext = createContext<NetworkContextType | undefined>(undefined);
 export function NetworkProvider({ children }: { children: ReactNode }) {
   const [scannedNetworks, setScannedNetworks] = useState<NetworkResult[]>([]);
   const [syncNetworks, setSyncNetworks] = useState(true);
-  const [adapterNetworks, setAdapterNetworks] = useState<Record<string, AdapterNetworkState>>({
-    adapter1: { selectedNetwork: null, isUsedForAttack: false },
-    adapter2: { selectedNetwork: null, isUsedForAttack: false }
-  });
+  const [adapterNetworks, setAdapterNetworks] = useState<Record<string, AdapterNetworkState>>({});
+
+  // Fetch real adapters on mount
+  useEffect(() => {
+    const fetchAdapters = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/interfaces");
+        const data = await response.json();
+        
+        if (data.status === "success" && data.interfaces) {
+          const newAdapterNetworks: Record<string, AdapterNetworkState> = {};
+          data.interfaces.forEach((iface: { interface: string }) => {
+            newAdapterNetworks[iface.interface] = {
+              selectedNetwork: null,
+              isUsedForAttack: false
+            };
+          });
+          
+          if (Object.keys(newAdapterNetworks).length > 0) {
+            setAdapterNetworks(newAdapterNetworks);
+            console.log("Loaded real adapters:", Object.keys(newAdapterNetworks));
+          } else {
+            // Fallback to dummy adapters if no real ones found
+            setAdapterNetworks({
+              wlan0: { selectedNetwork: null, isUsedForAttack: false },
+              wlan1: { selectedNetwork: null, isUsedForAttack: false }
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch adapters:", error);
+        // Fallback to dummy adapters
+        setAdapterNetworks({
+          wlan0: { selectedNetwork: null, isUsedForAttack: false },
+          wlan1: { selectedNetwork: null, isUsedForAttack: false }
+        });
+      }
+    };
+    
+    fetchAdapters();
+  }, []);
 
   const handleSyncToggle = (sync: boolean) => {
     setSyncNetworks(sync);
