@@ -19,7 +19,7 @@ HANDSHAKES_DIR = Path.home() / "Documents" / "handshakes"
 HANDSHAKES_DIR.mkdir(parents=True, exist_ok=True)
 
 class HandshakeManager:
-    def __init__(self, adapter: str, target_bssid: str, channel: int = None, duration: int = 300):
+    def __init__(self, adapter: str, target_bssid: str, channel: int = None, duration: int = 0):
         self.adapter = adapter
         self.target_bssid = target_bssid
         self.channel = channel
@@ -156,6 +156,8 @@ class HandshakeManager:
                 if "WPA handshake" in line or "handshake" in line.lower():
                     self.handshake_captured = True
                     print(f"Handshake captured! {line.strip()}")
+                    # Stop capture automatically when handshake is found
+                    break
                 elif "packets" in line.lower() or "data" in line.lower():
                     # Try to extract packet count (basic parsing)
                     try:

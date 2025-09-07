@@ -8,8 +8,6 @@ interface HandshakeStatus {
   running: boolean;
   handshake_captured: boolean;
   packets_captured: number;
-  elapsed_time: number;
-  remaining_time: number;
   target_bssid: string;
   channel: string | null;
   output_file: string;
@@ -17,7 +15,6 @@ interface HandshakeStatus {
 
 export default function HandshakePage() {
   const [targetNetwork, setTargetNetwork] = useState("");
-  const [duration, setDuration] = useState(60);
   const [selectedAdapter, setSelectedAdapter] = useState<string>("");
   const [isCapturing, setIsCapturing] = useState(false);
   const [captureKey, setCaptureKey] = useState<string | null>(null);
@@ -121,26 +118,89 @@ export default function HandshakePage() {
     setIsCapturing(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/handshake", {
+      // Get channel info from selected network if available
+      const adapterMenuId = Object.entries(selectedAdapters).find(([, adapter]) => adapter === selectedAdapter)?.[0];
+      const networkState = adapterMenuId ? adapterNetworks[adapterMenuId] : null;
+      const selectedNetworkInfo = networkState?.selectedNetwork;
+      const channel = selectedNetworkInfo?.channel || null;
+
+      const response = await fetch("http://localhost:8000/api/handshake/start", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          adapter: "wlan0", // You might want to get this from context
+          adapter: selectedAdapter,
           target_bssid: targetNetwork,
-          duration: duration
+          duration: 0, // 0 means run indefinitely
+          channel: channel
         }),
       });
 
       const data = await response.json();
       console.log("Handshake capture result:", data);
-      alert(`${data.message}\n\nOutput:\n${data.output}`);
+      
+      if (data.status === "started") {
+        setCaptureKey(data.capture_key);
+        setCaptureError(null);
+        startStatusPolling();
+        alert(`Handshake capture started for ${data.target_bssid}\nWill run until handshake captured or manually stopped\nOutput file: ${data.output_file}`);
+      } else if (data.status === "already_running") {
+        alert(data.message);
+        setIsCapturing(false);
+      } else {
+        throw new Error(data.message || "Failed to start handshake capture");
+      }
     } catch (error) {
       console.error("Error starting handshake capture:", error);
-      alert("Failed to start handshake capture");
-    } finally {
+      setCaptureError(error instanceof Error ? error.message : "Failed to start handshake capture");
+      alert("Failed to start handshake capture: " + (error instanceof Error ? error.message : "Unknown error"));
       setIsCapturing(false);
+    }
+  };
+
+  const handleStopCapture = async () => {
+    if (!selectedAdapter || !targetNetwork) {
+      alert("No active capture to stop");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8000/api/handshake/stop", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          adapter: selectedAdapter,
+          target_bssid: targetNetwork
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Stop handshake capture result:", data);
+      
+      if (data.status === "stopped") {
+        setIsCapturing(false);
+        setCaptureKey(null);
+        setCaptureStatus(null);
+        
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+          pollIntervalRef.current = null;
+        }
+        
+        const message = data.handshake_captured 
+          ? `Handshake capture stopped.\nHandshake captured: YES\nPackets: ${data.packets_captured}\nFile: ${data.output_file}`
+          : `Handshake capture stopped.\nHandshake captured: NO\nPackets: ${data.packets_captured}`;
+        
+        alert(message);
+      } else {
+        alert(data.message || "Failed to stop handshake capture");
+      }
+    } catch (error) {
+      console.error("Error stopping handshake capture:", error);
+      alert("Failed to stop handshake capture: " + (error instanceof Error ? error.message : "Unknown error"));
     }
   };
 
@@ -149,8 +209,32 @@ export default function HandshakePage() {
       <h2 className="text-2xl font-bold mb-4 text-foreground">Handshake Capture</h2>
       <div className="bg-card p-4 rounded-lg border border-border shadow-custom">
         <p className="text-muted-foreground mb-4">
-          Capture WPA/WPA2 handshakes for offline password cracking.
+          Capture WPA/WPA2 handshakes for offline password cracking. Capture will run until a handshake is found or manually stopped.
         </p>
+        
+        {/* Status Display */}
+        {isCapturing && captureStatus && (
+          <div className="mb-4 p-3 bg-accent/10 border border-accent rounded-lg">
+            <h3 className="font-bold text-accent mb-2">Capture Status</h3>
+            <div className="text-sm space-y-1">
+              <p><strong>Target:</strong> {captureStatus.target_bssid}</p>
+              <p><strong>Channel:</strong> {captureStatus.channel || "Unknown"}</p>
+              <p><strong>Status:</strong> {captureStatus.running ? "Running" : "Stopped"}</p>
+              <p><strong>Packets Captured:</strong> {captureStatus.packets_captured}</p>
+              <p><strong>Handshake:</strong> {captureStatus.handshake_captured ? "✅ CAPTURED" : "❌ Not yet"}</p>
+              {captureStatus.output_file && (
+                <p><strong>Output File:</strong> {captureStatus.output_file}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {captureError && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded-lg">
+            <p className="text-destructive font-medium">Error: {captureError}</p>
+          </div>
+        )}
         <div className="space-y-2">
           {/* Adapter Selection */}
           <div>
@@ -189,23 +273,24 @@ export default function HandshakePage() {
               onChange={(e) => setTargetNetwork(e.target.value)}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground">Capture Duration (seconds):</label>
-            <input 
-              type="number" 
-              className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary" 
-              placeholder="60"
-              value={duration}
-              onChange={(e) => setDuration(parseInt(e.target.value))}
-            />
+          <div className="flex gap-2">
+            <button 
+              className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/80 disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
+              onClick={handleHandshakeCapture}
+              disabled={isCapturing}
+            >
+              {isCapturing ? "Capturing..." : "Start Handshake Capture"}
+            </button>
+            
+            {isCapturing && (
+              <button 
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/80 transition-all shadow-custom"
+                onClick={handleStopCapture}
+              >
+                Stop Capture
+              </button>
+            )}
           </div>
-          <button 
-            className="px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/80 disabled:bg-muted disabled:text-muted-foreground transition-all shadow-custom"
-            onClick={handleHandshakeCapture}
-            disabled={isCapturing}
-          >
-            {isCapturing ? "Capturing..." : "Start Handshake Capture"}
-          </button>
         </div>
       </div>
     </div>
