@@ -94,6 +94,13 @@ export default function DeauthPage() {
       return;
     }
 
+    // Validate BSSID format (should be 6 pairs of hex digits separated by colons)
+    const bssidRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
+    if (!bssidRegex.test(targetNetwork)) {
+      alert("Invalid BSSID format. Please use format: AA:BB:CC:DD:EE:FF");
+      return;
+    }
+
     setAttackError(null);
 
     if (isAttacking) {
@@ -107,7 +114,7 @@ export default function DeauthPage() {
           body: JSON.stringify({
             adapter: selectedAdapter,
             target_bssid: targetNetwork,
-            target_mac: targetDevice || null
+            target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null
           }),
         });
 
@@ -131,20 +138,31 @@ export default function DeauthPage() {
     } else {
       // Start attack
       try {
+        const requestBody = {
+          adapter: selectedAdapter,
+          target_bssid: targetNetwork,
+          target_mac: targetDevice && targetDevice.trim() !== "" ? targetDevice.trim() : null
+        };
+        console.log("Sending deauth start request:", requestBody);
+        
         const response = await fetch("http://localhost:8000/api/deauth/start", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            adapter: selectedAdapter,
-            target_bssid: targetNetwork,
-            target_mac: targetDevice || null
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         const data = await response.json();
         console.log("Start deauth result:", data);
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+          console.error("Deauth start failed with status:", response.status);
+          console.error("Error response:", data);
+          setAttackError(`HTTP ${response.status}: ${data.detail || data.message || 'Unknown error'}`);
+          return;
+        }
         
         if (data.status === "started" || data.status === "already_running") {
           setIsAttacking(true);
