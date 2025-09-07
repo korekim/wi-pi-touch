@@ -64,10 +64,11 @@ class HandshakeManager:
             self.thread.daemon = True
             self.thread.start()
             
-            # Give it a moment to start
+            # Give it a moment to start and check if thread is alive
             time.sleep(1)
             
-            return self.is_running()
+            # Return True if thread is running (process will be created by worker)
+            return self.thread.is_alive()
             
         except Exception as e:
             print(f"Error starting handshake capture: {e}")
@@ -136,6 +137,8 @@ class HandshakeManager:
     def _capture_worker(self):
         """Background worker for handshake capture"""
         try:
+            print(f"Starting handshake capture worker for {self.target_bssid}")
+            
             # Build airodump-ng command
             cmd = [
                 "sudo", "airodump-ng",
@@ -159,6 +162,8 @@ class HandshakeManager:
                 bufsize=1,
                 preexec_fn=os.setsid
             )
+            
+            print(f"Handshake capture process started with PID: {self.process.pid}")
             
             # Monitor output and look for handshake
             start_time = time.time()
@@ -191,7 +196,10 @@ class HandshakeManager:
                 
         except Exception as e:
             print(f"Error in handshake capture worker: {e}")
+            import traceback
+            traceback.print_exc()
         finally:
+            print(f"Handshake capture worker finishing for {self.target_bssid}")
             self._cleanup_process()
 
 @router.post("/handshake/start")
